@@ -61,6 +61,17 @@ const components: Components = {
     const text = extractText(children)
     return <h3 id={slugify(text)} className="scroll-mt-24 group" {...props}>{children}</h3>
   },
+  table: ({ children }) => (
+    <div className="w-full overflow-hidden rounded-xl border border-gray-700/50">
+      <table className="w-full text-sm border-collapse">{children}</table>
+    </div>
+  ),
+  th: ({ children }) => (
+    <th className="border border-gray-700/50 px-4 py-2.5 text-left font-semibold text-gray-200 bg-gray-800/50">{children}</th>
+  ),
+  td: ({ children }) => (
+    <td className="border border-gray-700/50 px-4 py-2.5 text-gray-300">{children}</td>
+  ),
 }
 
 export default function DocsPage() {
@@ -108,10 +119,7 @@ export default function DocsPage() {
             prose-h3:bg-brand-500/5 prose-h3:-mx-2 prose-h3:px-2 prose-h3:py-1 prose-h3:rounded-lg prose-h3:border prose-h3:border-brand-500/10
             prose-a:text-brand-400 prose-a:no-underline hover:prose-a:underline
             prose-strong:text-gray-200
-            prose-table:w-full prose-table:text-sm prose-table:border-collapse
-            prose-th:border prose-th:border-gray-700/50 prose-th:px-4 prose-th:py-2.5 prose-th:text-left prose-th:font-semibold prose-th:text-gray-200 prose-th:bg-gray-800/50
-            prose-td:border prose-td:border-gray-700/50 prose-td:px-4 prose-td:py-2.5 prose-td:text-gray-300
-            prose-table:rounded-xl prose-table:overflow-hidden
+
             prose-hr:border-gray-800 prose-hr:my-10
             prose-p:text-gray-300 prose-p:leading-relaxed prose-p:my-4
             prose-li:text-gray-300 prose-li:my-1"

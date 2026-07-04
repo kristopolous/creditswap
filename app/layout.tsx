@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <div className="flex items-center gap-3">
                 <a href="/platforms" className="btn-ghost">Platforms</a>
                 <a href="/sell" className="btn-ghost">Sell</a>
-                <a href="/buy" className="btn-primary">Buy Credits</a>
+                <a href="/buy" className="btn-primary">Buy</a>
                 <NavActions />
               </div>
             </div>
