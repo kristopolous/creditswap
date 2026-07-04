@@ -11,11 +11,13 @@ export async function POST(req: Request) {
     name,
     slug,
     description: `API credits for ${name}. Added via discovery.`,
-    logo: "🔮",
     apiEndpoint: endpoint,
+    website: null,
     supported: true,
     discoverable: true,
     creditsPerCall: null,
+    costModel: "per_call" as const,
+    creditsPerHour: null,
   }
 
   return NextResponse.json({

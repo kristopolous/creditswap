@@ -47,8 +47,12 @@ export default function SellPage() {
           {platforms.map((p) => (
             <div key={p.id} className="glass-card p-6">
               <div className="mb-5 flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-sm bg-gray-800/50 text-2xl">
-                  {p.logo}
+                <span className="flex h-12 w-12 items-center justify-center rounded-sm bg-gray-800/50">
+                  {p.website ? (
+                    <img src={`https://${p.website}/favicon.ico`} alt="" className="h-8 w-8" />
+                  ) : (
+                    <span className="text-2xl">?</span>
+                  )}
                 </span>
                 <div>
                   <h3 className="text-lg font-semibold text-white">{p.name}</h3>

@@ -2,17 +2,17 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: creditswap-db
+    network_mode: host
     environment:
       POSTGRES_USER: creditswap
       POSTGRES_PASSWORD: creditswap_dev
       POSTGRES_DB: creditswap
-    ports:
-      - "5433:5432"
+      PGPORT: "5433"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U creditswap -d creditswap"]
+      test: ["CMD-SHELL", "pg_isready -U creditswap -d creditswap -p 5433"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -30,6 +30,8 @@ services:
       PGUSER: creditswap
       PGPASSWORD: creditswap_dev
       PGDATABASE: creditswap
+      NEXTAUTH_URL: http://localhost:3000
+      AUTH_SECRET: cFWKWfKix0KMQkieO5PjJ8rA4hYvJOuwqo/0H4mbm8k=
     depends_on:
       postgres:
         condition: service_healthy

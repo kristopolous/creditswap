@@ -73,7 +73,7 @@ export default function ProxyAuthPage() {
           <div className="text-4xl mb-4">&#10003;</div>
           <h1 className="text-2xl font-bold text-brand-300 mb-2">Authorized!</h1>
           <p className="text-gray-400 mb-6">
-            Your proxy has been connected to <span className="text-white">{session.user.email}</span>.
+            Your proxy has been connected to <span className="text-white">{session.user?.email}</span>.
             You can return to your terminal.
           </p>
         </div>
@@ -86,7 +86,7 @@ export default function ProxyAuthPage() {
       <div className="max-w-md w-full mx-4">
         <h1 className="text-2xl font-bold text-white mb-2">Authorize Proxy</h1>
         <p className="text-gray-400 mb-6">
-          Signed in as <span className="text-white">{session.user.email}</span>.
+          Signed in as <span className="text-white">{session.user?.email}</span>.
           Click below to connect your creditswap proxy to this account.
         </p>
         {code && (

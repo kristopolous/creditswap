@@ -1,5 +1,5 @@
-import { randomBytes } from "crypto"
-import { query, queryOne } from "./db"
+import { randomBytes, createHash } from "crypto"
+import { query, queryOne, execute } from "./db"
 import { Platform, SellOrder, BuyOrder, Deal, APIKey, UsageLog, UsageStats } from "./types"
 
 // ── Platforms ──────────────────────────────────────────────
@@ -450,7 +450,6 @@ export async function getUsageStatsForBuyOrder(buyOrderId: string): Promise<Usag
 // ── Proxy Auth Sessions ────────────────────────────────────
 
 export async function createProxyAuthSession(): Promise<{ code: string; verificationUrl: string; expiresIn: number }> {
-  const { randomBytes, createHash } = await import("crypto")
   const raw = randomBytes(16)
   const code = createHash("sha256").update(raw).update(String(Date.now())).digest("hex").slice(0, 16)
 
@@ -507,7 +506,7 @@ export async function claimProxyAuthSession(code: string, userId: string): Promi
     [userId]
   )
 
-  const r = await query(
+  const count = await execute(
     `UPDATE proxy_auth_sessions
      SET status = 'active',
          user_id = $1,
@@ -518,7 +517,7 @@ export async function claimProxyAuthSession(code: string, userId: string): Promi
      WHERE code = $5 AND status = 'pending' AND expires_at > NOW()`,
     [userId, key?.key ?? null, key?.platform_slug ?? null, key?.api_endpoint ?? null, code]
   )
-  return r.rowCount != null && r.rowCount > 0
+  return count > 0
 }
 
 // ── Order Book ─────────────────────────────────────────────

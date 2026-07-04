@@ -28,3 +28,13 @@ export async function queryOne<T = any>(sql: string, params?: any[]): Promise<T 
   const rows = await query<T>(sql, params)
   return rows[0] || null
 }
+
+export async function execute(sql: string, params?: any[]): Promise<number> {
+  const client = await pool.connect()
+  try {
+    const result = await client.query(sql, params)
+    return result.rowCount ?? 0
+  } finally {
+    client.release()
+  }
+}
