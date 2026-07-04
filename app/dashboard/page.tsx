@@ -51,119 +51,24 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {buyOrders.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span className="text-brand-400">📥</span> Credits Bought
-          </h2>
-          <div className="mt-4 space-y-4">
-            {buyOrders.map((order) => (
-              <div key={order.id} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800/30">
-                  <div className="flex items-center gap-3">
-                    <a href={`/platforms/${order.platformSlug}`} className="text-sm font-semibold text-white hover:text-brand-400 transition-colors">
-                      {order.platformName}
-                    </a>
-                    <span className={`badge text-[10px] ${order.status === "completed" ? "badge-green" : "badge-amber"}`}>
-                      {order.status}
-                    </span>
-                  </div>
-                  <a href={`/usage/${order.id}`} className="text-xs text-brand-400 hover:underline font-medium">
-                    View full log →
-                  </a>
-                </div>
-                <div className="px-6 py-4 grid gap-4 sm:grid-cols-3">
-                  <div>
-                    <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Purchased</p>
-                    <p className="mt-0.5 text-lg font-bold text-white">{order.amount.toLocaleString()} credits</p>
-                    <p className="text-xs text-gray-500">at ${order.pricePerCredit.toFixed(2)}/credit</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Usage (API Calls)</p>
-                    <p className="mt-0.5 text-lg font-bold text-amber-400">{order.usage.calls.toLocaleString()} calls</p>
-                    <p className="text-xs text-gray-500">{order.usage.creditsUsed.toFixed(2)} credits consumed</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Remaining</p>
-                    <p className="mt-0.5 text-lg font-bold text-green-400">{Math.max(0, order.amount - order.usage.creditsUsed).toFixed(2)}</p>
-                    <div className="mt-1.5 h-1.5 rounded-full bg-gray-800 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-brand-500 to-amber-500"
-                        style={{ width: `${Math.min((order.usage.creditsUsed / order.amount) * 100, 100)}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {sellOrders.length > 0 && (
-        <section className="mt-10">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <span className="text-red-400">📤</span> Credits for Sale
-          </h2>
-          <div className="mt-4 space-y-4">
-            {sellOrders.map((order) => (
-              <div key={order.id} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800/30">
-                  <div className="flex items-center gap-3">
-                    <a href={`/platforms/${order.platformSlug}`} className="text-sm font-semibold text-white hover:text-brand-400 transition-colors">
-                      {order.platformName}
-                    </a>
-                    <span className={`badge text-[10px] ${order.type === "limit" ? "badge-amber" : "badge-blue"}`}>
-                      {order.type}
-                    </span>
-                    {order.status === "active" && <span className="badge-green text-[10px]">active</span>}
-                    {order.status !== "active" && <span className="badge-gray text-[10px]">{order.status}</span>}
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {order.type === "limit" && order.status === "active" && (
-                      <a
-                        href={`/platforms/${order.platformSlug}/sell`}
-                        className="text-xs text-brand-400 hover:underline font-medium"
-                      >
-                        Change price →
-                      </a>
-                    )}
-                    <a
-                      href={`/platforms/${order.platformSlug}`}
-                      className="text-xs text-gray-500 hover:text-gray-300 transition-colors"
-                    >
-                      View market
-                    </a>
-                  </div>
-                </div>
-                <div className="px-6 py-4 grid gap-4 sm:grid-cols-3">
-                  <div>
-                    <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Listed</p>
-                    <p className="mt-0.5 text-lg font-bold text-white">{order.availableCredits.toLocaleString()} / {order.totalCredits.toLocaleString()} credits</p>
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">
-                      {order.type === "limit" ? "Limit Price" : "Market Rate"}
-                    </p>
-                    {order.type === "limit" ? (
-                      <p className="mt-0.5 text-lg font-bold text-amber-400">${order.pricePerCredit.toFixed(2)}</p>
-                    ) : (
-                      <p className="mt-0.5 text-lg font-bold text-blue-400">Market</p>
-                    )}
-                  </div>
-                  <div>
-                    <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider">Status</p>
-                    <p className="mt-0.5 text-sm font-medium text-gray-300 capitalize">{order.status}</p>
-                    {order.expiresAt && (
-                      <p className="text-xs text-gray-500">Expires {new Date(order.expiresAt).toLocaleDateString()}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
+      <div className="mt-10 grid gap-6 sm:grid-cols-2">
+        <a href="/dashboard/bought" className="group rounded-2xl border border-gray-800/50 bg-gradient-to-br from-gray-900/60 to-gray-900/30 backdrop-blur-xl p-8 hover:border-brand-500/30 transition-all duration-200">
+          <span className="text-3xl">📥</span>
+          <h2 className="mt-4 text-lg font-bold text-white group-hover:text-brand-400 transition-colors">Credits Bought</h2>
+          <p className="mt-2 text-sm text-gray-400">
+            {buyOrders.length} purchase{buyOrders.length !== 1 ? "s" : ""} &middot; {totalCreditsUsed.toLocaleString()} of {totalCreditsBought.toLocaleString()} credits used
+          </p>
+          <p className="mt-1 text-xs text-gray-500">View usage logs, API call breakdown, and remaining credits →</p>
+        </a>
+        <a href="/dashboard/sold" className="group rounded-2xl border border-gray-800/50 bg-gradient-to-br from-gray-900/60 to-gray-900/30 backdrop-blur-xl p-8 hover:border-red-500/30 transition-all duration-200">
+          <span className="text-3xl">📤</span>
+          <h2 className="mt-4 text-lg font-bold text-white group-hover:text-red-400 transition-colors">Credits for Sale</h2>
+          <p className="mt-2 text-sm text-gray-400">
+            {sellOrders.length} listing{sellOrders.length !== 1 ? "s" : ""} &middot; {totalListed.toLocaleString()} credits available
+          </p>
+          <p className="mt-1 text-xs text-gray-500">Manage listings, adjust limit prices, and view market →</p>
+        </a>
+      </div>
 
       {buyOrders.length === 0 && sellOrders.length === 0 && (
         <div className="mt-10 rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-12 text-center">
