@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS platforms (
   api_endpoint  VARCHAR(512) NOT NULL,
   supported     BOOLEAN DEFAULT true,
   discoverable  BOOLEAN DEFAULT true,
-  created_at    TIMESTAMPTZ DEFAULT now()
+  credits_per_call  NUMERIC(10,6),       -- default credits consumed per API call (NULL = unknown)
+  created_at        TIMESTAMPTZ DEFAULT now()
 );
 
 CREATE INDEX IF NOT EXISTS idx_platforms_slug ON platforms (slug);
@@ -42,9 +43,11 @@ CREATE TABLE IF NOT EXISTS sell_orders (
   seller_key        VARCHAR(255) NOT NULL,
   total_credits     NUMERIC(20,2) NOT NULL,
   available_credits NUMERIC(20,2) NOT NULL,
-  price_per_credit  NUMERIC(10,4) NOT NULL CHECK (price_per_credit > 0 AND price_per_credit < 1.00),
+  price_per_credit  NUMERIC(10,4) NOT NULL CHECK (price_per_credit >= 0 AND price_per_credit < 1.00),
   type              VARCHAR(10) NOT NULL DEFAULT 'limit',
   status            VARCHAR(20) NOT NULL DEFAULT 'active',
+  expires_at        TIMESTAMPTZ,
+  escrow_balance    NUMERIC(20,2) DEFAULT 0 NOT NULL,
   created_at        TIMESTAMPTZ DEFAULT now(),
   updated_at        TIMESTAMPTZ DEFAULT now(),
   CONSTRAINT ck_sell_available CHECK (available_credits >= 0 AND available_credits <= total_credits)
@@ -112,6 +115,45 @@ CREATE INDEX IF NOT EXISTS idx_transactions_buy      ON transactions (buy_order_
 CREATE INDEX IF NOT EXISTS idx_transactions_sell     ON transactions (sell_order_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_platform ON transactions (platform_id);
 CREATE INDEX IF NOT EXISTS idx_transactions_created  ON transactions (created_at);
+
+-- ── Usage Log ───────────────────────────────────────────────
+-- Every API call through the proxy is recorded here for bookkeeping.
+
+CREATE TABLE IF NOT EXISTS usage_log (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  api_key_id      UUID NOT NULL REFERENCES api_keys(id),
+  buy_order_id    UUID REFERENCES buy_orders(id),
+  platform_id     UUID NOT NULL REFERENCES platforms(id),
+  endpoint        VARCHAR(512) NOT NULL,
+  method          VARCHAR(10) NOT NULL,
+  credits_charged NUMERIC(20,2) NOT NULL,
+  status_code     INT,
+  ip_address      VARCHAR(45),
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_usage_log_key     ON usage_log (api_key_id);
+CREATE INDEX IF NOT EXISTS idx_usage_log_buy     ON usage_log (buy_order_id);
+CREATE INDEX IF NOT EXISTS idx_usage_log_platform ON usage_log (platform_id);
+CREATE INDEX IF NOT EXISTS idx_usage_log_created  ON usage_log (created_at);
+
+-- ── Escrow Releases ─────────────────────────────────────────
+-- Tracks when funds are released to sellers as credits are consumed.
+
+CREATE TABLE IF NOT EXISTS escrow_releases (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  buy_order_id    UUID NOT NULL REFERENCES buy_orders(id),
+  sell_order_id   UUID NOT NULL REFERENCES sell_orders(id),
+  credits         NUMERIC(20,2) NOT NULL,
+  amount          NUMERIC(20,2) NOT NULL,
+  fee             NUMERIC(20,2) NOT NULL,
+  status          VARCHAR(20) NOT NULL DEFAULT 'pending',
+  released_at     TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_escrow_releases_buy  ON escrow_releases (buy_order_id);
+CREATE INDEX IF NOT EXISTS idx_escrow_releases_sell ON escrow_releases (sell_order_id);
 
 -- ════════════════════════════════════════════════════════════
 -- SEED DATA

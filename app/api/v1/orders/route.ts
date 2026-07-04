@@ -31,7 +31,9 @@ export async function POST(req: Request) {
     return error("platformId, amount, and pricePerCredit are required", 400)
   }
 
-  if (typeof pricePerCredit === "number" && pricePerCredit >= 1) {
+  if (side === "sell" && type === "market") {
+    // market sell — price is determined by market
+  } else if (typeof pricePerCredit === "number" && pricePerCredit >= 1) {
     return error("pricePerCredit must be under $1.00", 400)
   }
 
@@ -50,8 +52,9 @@ export async function POST(req: Request) {
       sellerKey: (body.apiKey as string) || "anonymous",
       totalCredits: amount as number,
       availableCredits: amount as number,
-      pricePerCredit: pricePerCredit as number,
+      pricePerCredit: type === "market" ? 0 : (pricePerCredit as number),
       type: type as "market" | "limit",
+      expiresAt: (body.expiresAt as string) || null,
     })
 
     return json({
@@ -63,6 +66,7 @@ export async function POST(req: Request) {
       type: order.type,
       status: order.status,
       side: "sell",
+      expiresAt: order.expiresAt,
       createdAt: order.createdAt,
     }, 201)
   }

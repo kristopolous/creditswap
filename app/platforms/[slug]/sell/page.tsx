@@ -33,6 +33,7 @@ function SellForm({ platform }: { platform: Platform }) {
   const [sellAmount, setSellAmount] = useState("")
   const [pricePerCredit, setPricePerCredit] = useState("")
   const [orderType, setOrderType] = useState<"market" | "limit">("market")
+  const [expiresAt, setExpiresAt] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState<{ id: string } | null>(null)
   const [error, setError] = useState("")
@@ -49,12 +50,16 @@ function SellForm({ platform }: { platform: Platform }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!sellAmount || !pricePerCredit) return
-    const price = parseFloat(pricePerCredit)
-    if (price >= 1) {
-      setError("Price must be under $1.00 per credit")
-      return
+    if (!sellAmount) return
+
+    if (orderType === "limit") {
+      const price = parseFloat(pricePerCredit)
+      if (!price || price <= 0 || price >= 1) {
+        setError("Limit price must be between $0.01 and $0.99")
+        return
+      }
     }
+
     setSubmitting(true)
     setError("")
 
@@ -68,16 +73,20 @@ function SellForm({ platform }: { platform: Platform }) {
           platformName: platform.name,
           apiKey,
           amount: parseInt(sellAmount),
-          pricePerCredit: price,
+          pricePerCredit: orderType === "market" ? 0 : parseFloat(pricePerCredit),
           type: orderType,
+          expiresAt: expiresAt || null,
         }),
       })
 
-      if (!res.ok) throw new Error("Failed to create order")
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}))
+        throw new Error(err.error || "Failed to create order")
+      }
       const data = await res.json()
       setSuccess(data)
-    } catch {
-      setError("Something went wrong. Please try again.")
+    } catch (e: any) {
+      setError(e.message || "Something went wrong. Please try again.")
     }
     setSubmitting(false)
   }
@@ -163,7 +172,7 @@ function SellForm({ platform }: { platform: Platform }) {
               <div className="mt-2 grid grid-cols-2 gap-3">
                 <button
                   type="button"
-                  onClick={() => setOrderType("market")}
+                  onClick={() => { setOrderType("market"); setPricePerCredit("") }}
                   className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 ${
                     orderType === "market"
                       ? "border-brand-500/50 bg-brand-500/10 text-brand-300"
@@ -171,7 +180,7 @@ function SellForm({ platform }: { platform: Platform }) {
                   }`}
                 >
                   Market Price
-                  <span className="block text-xs font-normal mt-0.5 text-gray-500">Sell at best rate</span>
+                  <span className="block text-xs font-normal mt-0.5 text-gray-500">Sells at highest bid</span>
                 </button>
                 <button
                   type="button"
@@ -183,50 +192,78 @@ function SellForm({ platform }: { platform: Platform }) {
                   }`}
                 >
                   Limit Order
-                  <span className="block text-xs font-normal mt-0.5 text-gray-500">Set your price</span>
+                  <span className="block text-xs font-normal mt-0.5 text-gray-500">Set your minimum price</span>
                 </button>
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300">
-                {orderType === "market" ? "Minimum Price per Credit" : "Price per Credit"}
-              </label>
-              <p className="text-xs text-gray-500 mt-0.5">Must be under $1.00</p>
-              <div className="relative mt-1.5">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                <input
-                  type="number"
-                  className="input-field pl-8"
-                  placeholder="0.00"
-                  step="0.01"
-                  min="0.01"
-                  max="0.99"
-                  value={pricePerCredit}
-                  onChange={(e) => setPricePerCredit(e.target.value)}
-                  required
-                />
+            {orderType === "limit" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-300">Limit Price (minimum per credit)</label>
+                <p className="text-xs text-gray-500 mt-0.5">Must be under $1.00</p>
+                <div className="relative mt-1.5">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <input
+                    type="number"
+                    className="input-field pl-8"
+                    placeholder="0.00"
+                    step="0.01"
+                    min="0.01"
+                    max="0.99"
+                    value={pricePerCredit}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      if (parseFloat(v) < 1 || v === "") setPricePerCredit(v)
+                    }}
+                    required
+                  />
+                </div>
+                {parseFloat(pricePerCredit) >= 1 && (
+                  <p className="text-xs text-red-400 mt-1">Price must be under $1.00</p>
+                )}
               </div>
+            )}
+
+            {orderType === "market" && (
+              <div className="rounded-xl bg-gray-950/50 border border-gray-800/50 p-4">
+                <p className="text-sm text-gray-400">
+                  Your credits will be listed at the <strong className="text-gray-200">market rate</strong> — the highest bid price available.
+                </p>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-300">Expiration Date (optional)</label>
+              <p className="text-xs text-gray-500 mt-0.5">
+                If set, the order will automatically expire and no longer be available.
+              </p>
+              <input
+                type="date"
+                className="input-field mt-1.5"
+                value={expiresAt}
+                min={new Date().toISOString().split("T")[0]}
+                onChange={(e) => setExpiresAt(e.target.value)}
+              />
             </div>
 
-            {sellAmount && pricePerCredit && parseFloat(pricePerCredit) < 1 && (
+            {sellAmount && (orderType === "market" || parseFloat(pricePerCredit) > 0) && (
               <div className="rounded-xl bg-gray-950/50 border border-gray-800/50 p-4 space-y-1.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Listing value</span>
                   <span className="font-medium text-gray-200">
-                    ${(parseFloat(sellAmount) * parseFloat(pricePerCredit)).toFixed(2)}
+                    ${(parseFloat(sellAmount) * (orderType === "market" ? 0 : parseFloat(pricePerCredit))).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Fee (15%)</span>
                   <span className="font-medium text-gray-200">
-                    ${(parseFloat(sellAmount) * parseFloat(pricePerCredit) * 0.15).toFixed(2)}
+                    ${(parseFloat(sellAmount) * (orderType === "market" ? 0 : parseFloat(pricePerCredit)) * 0.15).toFixed(2)}
                   </span>
                 </div>
                 <div className="border-t border-gray-800 pt-1.5 flex justify-between text-sm">
                   <span className="font-semibold text-gray-200">You receive</span>
                   <span className="font-bold text-brand-300">
-                    ${(parseFloat(sellAmount) * parseFloat(pricePerCredit) * 0.85).toFixed(2)}
+                    ${(parseFloat(sellAmount) * (orderType === "market" ? 0 : parseFloat(pricePerCredit)) * 0.85).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -237,7 +274,7 @@ function SellForm({ platform }: { platform: Platform }) {
             <button
               type="submit"
               className="btn-order-sell w-full"
-              disabled={submitting || (parseFloat(pricePerCredit) || 0) >= 1}
+              disabled={submitting || (orderType === "limit" && (parseFloat(pricePerCredit) || 0) >= 1)}
             >
               {submitting ? "Listing..." : `List ${orderType === "market" ? "at Market Rate" : "Limit Order"}`}
             </button>

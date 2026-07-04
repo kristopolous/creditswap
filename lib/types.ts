@@ -18,7 +18,8 @@ export interface SellOrder {
   availableCredits: number
   pricePerCredit: number
   type: "limit" | "market"
-  status: "active" | "filled" | "cancelled"
+  status: "active" | "filled" | "cancelled" | "expired"
+  expiresAt: string | null
   createdAt: string
 }
 

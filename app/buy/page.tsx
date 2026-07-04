@@ -56,7 +56,7 @@ export default async function BuyPage() {
             {[
               { num: "1", title: "Choose a Deal", desc: "Browse available deals across platforms. Compare rates." },
               { num: "2", title: "Pick Market or Limit", desc: "Buy instantly at market rate or set a limit price." },
-              { num: "3", title: "Use Proxy Key", desc: "Get a proxy key and redirect API calls through creditswap." },
+              { num: "3", title: "Proxy Setup", desc: "After purchase, use the Go proxy to route API calls through creditswap." },
             ].map((step) => (
               <div key={step.num} className="flex gap-4 glass-card-static p-5">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 text-sm font-bold text-brand-300">
@@ -68,6 +68,14 @@ export default async function BuyPage() {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="mt-8 rounded-xl bg-gradient-to-br from-brand-500/10 to-brand-500/5 border border-brand-500/20 p-5 text-center">
+            <p className="text-sm text-gray-300">
+              Learn how to set up the proxy &mdash;{" "}
+              <a href="/how-to-buy" className="text-brand-400 hover:underline font-medium">
+                How to Buy &amp; Setup Guide
+              </a>
+            </p>
           </div>
         </div>
       </div>

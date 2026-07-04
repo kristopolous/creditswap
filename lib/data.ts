@@ -32,12 +32,25 @@ export async function createPlatform(name: string, apiEndpoint: string, descript
 
 // ── Sell Orders ────────────────────────────────────────────
 
+export async function expireSellOrders(): Promise<void> {
+  await query(
+    `UPDATE sell_orders
+     SET status = 'expired'
+     WHERE status = 'active'
+       AND expires_at IS NOT NULL
+       AND expires_at < NOW()`
+  )
+}
+
 export async function getSellOrders(platformId: string): Promise<SellOrder[]> {
+  await expireSellOrders()
   return query<SellOrder>(
     `SELECT so.id, so.platform_id AS "platformId", p.name AS "platformName",
             so.seller_key AS "sellerKey", so.total_credits AS "totalCredits",
             so.available_credits AS "availableCredits", so.price_per_credit AS "pricePerCredit",
-            so.type, so.status, so.created_at AS "createdAt"
+            so.type, so.status,
+            so.expires_at AS "expiresAt",
+            so.created_at AS "createdAt"
      FROM sell_orders so
      JOIN platforms p ON p.id = so.platform_id
      WHERE so.platform_id = $1 AND so.status = 'active'
@@ -47,11 +60,14 @@ export async function getSellOrders(platformId: string): Promise<SellOrder[]> {
 }
 
 export async function getAllSellOrders(): Promise<SellOrder[]> {
+  await expireSellOrders()
   return query<SellOrder>(
     `SELECT so.id, so.platform_id AS "platformId", p.name AS "platformName",
             so.seller_key AS "sellerKey", so.total_credits AS "totalCredits",
             so.available_credits AS "availableCredits", so.price_per_credit AS "pricePerCredit",
-            so.type, so.status, so.created_at AS "createdAt"
+            so.type, so.status,
+            so.expires_at AS "expiresAt",
+            so.created_at AS "createdAt"
      FROM sell_orders so
      JOIN platforms p ON p.id = so.platform_id
      ORDER BY so.created_at DESC`
@@ -66,15 +82,16 @@ export async function createSellOrder(order: {
   availableCredits: number
   pricePerCredit: number
   type: "market" | "limit"
+  expiresAt?: string | null
 }): Promise<SellOrder> {
   return queryOne<SellOrder>(
-    `INSERT INTO sell_orders (platform_id, seller_key, total_credits, available_credits, price_per_credit, type)
-     VALUES ($1, $2, $3, $4, $5, $6)
-     RETURNING id, platform_id AS "platformId", $7 AS "platformName",
+    `INSERT INTO sell_orders (platform_id, seller_key, total_credits, available_credits, price_per_credit, type, expires_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING id, platform_id AS "platformId", $8 AS "platformName",
               seller_key AS "sellerKey", total_credits AS "totalCredits",
               available_credits AS "availableCredits", price_per_credit AS "pricePerCredit",
-              type, status, created_at AS "createdAt"`,
-    [order.platformId, order.sellerKey, order.totalCredits, order.availableCredits, order.pricePerCredit, order.type, order.platformName]
+              type, status, expires_at AS "expiresAt", created_at AS "createdAt"`,
+    [order.platformId, order.sellerKey, order.totalCredits, order.availableCredits, order.pricePerCredit, order.type, order.expiresAt || null, order.platformName]
   ) as Promise<SellOrder>
 }
 

@@ -28,7 +28,9 @@ export default async function PlatformPage({ params: { slug } }: { params: { slu
             {platform.logo}
           </span>
           <div>
-            <h1 className="text-3xl font-bold text-white">{platform.name}</h1>
+            <h1 className="text-3xl font-bold text-white">
+              <a href="/docs" className="hover:text-brand-400 transition-colors">{platform.name}</a>
+            </h1>
             <p className="mt-1 text-gray-400 max-w-2xl">{platform.description}</p>
           </div>
         </div>

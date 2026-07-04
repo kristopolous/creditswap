@@ -72,6 +72,10 @@ Sell listings posted by credit holders.
 **Check:**
 - `ck_sell_available` — `available_credits <= total_credits AND available_credits >= 0`
 
+**Notes:**
+- Market sell orders have `price_per_credit = 0` (price determined by market at match time).
+- When `expires_at` is set and the timestamp passes, the order status is automatically updated to `expired` via `expireSellOrders()` before any query.
+
 ---
 
 ## Table: `buy_orders`
