@@ -1,12 +1,12 @@
 import { query, queryOne } from "./db"
-import { Platform, SellOrder, BuyOrder, Deal, APIKey } from "./types"
+import { Platform, SellOrder, BuyOrder, Deal, APIKey, UsageLog, UsageStats } from "./types"
 
 // ── Platforms ──────────────────────────────────────────────
 
 export async function getPlatform(slug: string): Promise<Platform | null> {
   return queryOne<Platform>(
     `SELECT id, name, slug, description, logo, api_endpoint AS "apiEndpoint",
-            supported, discoverable, created_at
+            supported, discoverable, credits_per_call AS "creditsPerCall", created_at
      FROM platforms WHERE slug = $1`,
     [slug]
   )
@@ -15,19 +15,27 @@ export async function getPlatform(slug: string): Promise<Platform | null> {
 export async function getPlatforms(): Promise<Platform[]> {
   return query<Platform>(
     `SELECT id, name, slug, description, logo, api_endpoint AS "apiEndpoint",
-            supported, discoverable, created_at
+            supported, discoverable, credits_per_call AS "creditsPerCall", created_at
      FROM platforms ORDER BY name`
   )
 }
 
-export async function createPlatform(name: string, apiEndpoint: string, description?: string): Promise<Platform> {
+export async function createPlatform(name: string, apiEndpoint: string, description?: string, creditsPerCall?: number | null): Promise<Platform> {
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
   return queryOne<Platform>(
-    `INSERT INTO platforms (name, slug, description, api_endpoint)
-     VALUES ($1, $2, $3, $4)
-     RETURNING id, name, slug, description, logo, api_endpoint AS "apiEndpoint", supported, discoverable, created_at`,
-    [name, slug, description || `API credits for ${name}.`, apiEndpoint]
+    `INSERT INTO platforms (name, slug, description, api_endpoint, credits_per_call)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING id, name, slug, description, logo, api_endpoint AS "apiEndpoint",
+              supported, discoverable, credits_per_call AS "creditsPerCall", created_at`,
+    [name, slug, description || `API credits for ${name}.`, apiEndpoint, creditsPerCall ?? null]
   ) as Promise<Platform>
+}
+
+export async function updatePlatformCreditsPerCall(platformId: string, creditsPerCall: number): Promise<void> {
+  await query(
+    `UPDATE platforms SET credits_per_call = $1 WHERE id = $2`,
+    [creditsPerCall, platformId]
+  )
 }
 
 // ── Sell Orders ────────────────────────────────────────────
@@ -241,7 +249,7 @@ export async function validateAPIKey(key: string): Promise<APIKey | null> {
   )
 }
 
-export async function deductCredits(key: string, amount: number): Promise<APIKey | null> {
+export async function deductCredits(key: string, amount: number, endpoint?: string, method?: string, statusCode?: number): Promise<APIKey | null> {
   const apiKey = await queryOne<APIKey>(
     `UPDATE api_keys
      SET remaining_credits = GREATEST(0, remaining_credits - $1),
@@ -255,9 +263,100 @@ export async function deductCredits(key: string, amount: number): Promise<APIKey
 
   if (apiKey) {
     const p = await queryOne<{ slug: string }>("SELECT slug FROM platforms WHERE id = $1", [apiKey.platformId])
-    return { ...apiKey, platformSlug: p?.slug || "" }
+    const enriched = { ...apiKey, platformSlug: p?.slug || "" }
+
+    if (endpoint && method) {
+      await query(
+        `INSERT INTO usage_log (api_key_id, platform_id, endpoint, method, credits_charged, status_code)
+         VALUES ($1, $2, $3, $4, $5, $6)`,
+        [apiKey.id, apiKey.platformId, endpoint, method, amount, statusCode ?? null]
+      )
+    }
+
+    return enriched
   }
   return null
+}
+
+export async function logUsage(
+  apiKeyId: string,
+  platformId: string,
+  endpoint: string,
+  method: string,
+  creditsCharged: number,
+  statusCode?: number,
+  buyOrderId?: string,
+): Promise<void> {
+  await query(
+    `INSERT INTO usage_log (api_key_id, buy_order_id, platform_id, endpoint, method, credits_charged, status_code)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+    [apiKeyId, buyOrderId ?? null, platformId, endpoint, method, creditsCharged, statusCode ?? null]
+  )
+}
+
+export async function getUsageLog(apiKeyId: string): Promise<UsageLog[]> {
+  return query<UsageLog>(
+    `SELECT id, api_key_id AS "apiKeyId", buy_order_id AS "buyOrderId",
+            platform_id AS "platformId", endpoint, method,
+            credits_charged AS "creditsCharged", status_code AS "statusCode",
+            ip_address AS "ipAddress", created_at AS "createdAt"
+     FROM usage_log
+     WHERE api_key_id = $1
+     ORDER BY created_at DESC
+     LIMIT 100`,
+    [apiKeyId]
+  )
+}
+
+export async function getUsageStatsForBuyOrder(buyOrderId: string): Promise<UsageStats | null> {
+  const buyOrder = await queryOne<BuyOrder>(
+    `SELECT id, platform_id AS "platformId", amount, price_per_credit AS "pricePerCredit",
+            total_price AS "totalPrice", fee, status
+     FROM buy_orders WHERE id = $1`,
+    [buyOrderId]
+  )
+  if (!buyOrder) return null
+
+  const totalCreditsPurchased = buyOrder.amount
+
+  const usageRows = await query<{ total: number; calls: number }>(
+    `SELECT COALESCE(SUM(credits_charged), 0) AS "total",
+            COUNT(*)::int AS "calls"
+     FROM usage_log
+     WHERE buy_order_id = $1`,
+    [buyOrderId]
+  )
+
+  const totalCreditsUsed = Number(usageRows[0]?.total ?? 0)
+
+  const byEndpoint = await query<{ endpoint: string; calls: number; credits: number }>(
+    `SELECT endpoint, COUNT(*)::int AS "calls", COALESCE(SUM(credits_charged), 0) AS "credits"
+     FROM usage_log
+     WHERE buy_order_id = $1
+     GROUP BY endpoint
+     ORDER BY "credits" DESC`,
+    [buyOrderId]
+  )
+
+  const byDay = await query<{ date: string; credits: number; calls: number }>(
+    `SELECT DATE(created_at)::text AS "date",
+            COALESCE(SUM(credits_charged), 0) AS "credits",
+            COUNT(*)::int AS "calls"
+     FROM usage_log
+     WHERE buy_order_id = $1
+     GROUP BY DATE(created_at)
+     ORDER BY "date" DESC`,
+    [buyOrderId]
+  )
+
+  return {
+    totalCreditsPurchased,
+    totalCreditsUsed,
+    totalCreditsRemaining: Math.max(0, totalCreditsPurchased - totalCreditsUsed),
+    totalCalls: usageRows[0]?.calls ?? 0,
+    usageByEndpoint: byEndpoint.map((r) => ({ endpoint: r.endpoint, calls: r.calls, credits: Number(r.credits) })),
+    usageByDay: byDay.map((r) => ({ date: r.date, credits: Number(r.credits), calls: r.calls })),
+  }
 }
 
 // ── Order Book ─────────────────────────────────────────────

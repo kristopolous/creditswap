@@ -5,16 +5,16 @@ import { Platform } from "@/lib/types"
 import { notFound, useParams } from "next/navigation"
 
 const platforms: Platform[] = [
-  { id: "p1", name: "Cloudify", slug: "cloudify", description: "Cloud compute and AI training credits.", logo: "☁️", apiEndpoint: "api.cloudify.com", supported: true, discoverable: true },
-  { id: "p2", name: "OpenAI", slug: "openai", description: "GPT API credits for language models.", logo: "🤖", apiEndpoint: "api.openai.com", supported: true, discoverable: true },
-  { id: "p3", name: "Anthropic", slug: "anthropic", description: "Claude API credits.", logo: "🧠", apiEndpoint: "api.anthropic.com", supported: true, discoverable: true },
-  { id: "p4", name: "Replicate", slug: "replicate", description: "Open-source model API credits.", logo: "🔄", apiEndpoint: "api.replicate.com", supported: true, discoverable: true },
-  { id: "p5", name: "Hugging Face", slug: "huggingface", description: "Inference API credits.", logo: "🤗", apiEndpoint: "api.huggingface.co", supported: true, discoverable: true },
-  { id: "p6", name: "Together AI", slug: "together", description: "Open-source LLM API credits.", logo: "🔗", apiEndpoint: "api.together.xyz", supported: true, discoverable: true },
-  { id: "p7", name: "ElevenLabs", slug: "elevenlabs", description: "AI voice synthesis credits.", logo: "🎙️", apiEndpoint: "api.elevenlabs.io", supported: true, discoverable: true },
-  { id: "p8", name: "Midjourney", slug: "midjourney", description: "AI image generation credits.", logo: "🎨", apiEndpoint: "api.midjourney.com", supported: true, discoverable: true },
-  { id: "p9", name: "Stability AI", slug: "stability", description: "Stable Diffusion credits.", logo: "✨", apiEndpoint: "api.stability.ai", supported: true, discoverable: true },
-  { id: "p10", name: "Perplexity", slug: "perplexity", description: "AI search credits.", logo: "🔍", apiEndpoint: "api.perplexity.ai", supported: true, discoverable: true },
+  { id: "p1", name: "Cloudify", slug: "cloudify", description: "Cloud compute and AI training credits.", logo: "☁️", apiEndpoint: "api.cloudify.com", supported: true, discoverable: true, creditsPerCall: null },
+  { id: "p2", name: "OpenAI", slug: "openai", description: "GPT API credits for language models.", logo: "🤖", apiEndpoint: "api.openai.com", supported: true, discoverable: true, creditsPerCall: null },
+  { id: "p3", name: "Anthropic", slug: "anthropic", description: "Claude API credits.", logo: "🧠", apiEndpoint: "api.anthropic.com", supported: true, discoverable: true, creditsPerCall: null },
+  { id: "p4", name: "Replicate", slug: "replicate", description: "Open-source model API credits.", logo: "🔄", apiEndpoint: "api.replicate.com", supported: true, discoverable: true, creditsPerCall: null },
+  { id: "p5", name: "Hugging Face", slug: "huggingface", description: "Inference API credits.", logo: "🤗", apiEndpoint: "api.huggingface.co", supported: true, discoverable: true, creditsPerCall: null },
+  { id: "p6", name: "Together AI", slug: "together", description: "Open-source LLM API credits.", logo: "🔗", apiEndpoint: "api.together.xyz", supported: true, discoverable: true, creditsPerCall: null },
+  { id: "p7", name: "ElevenLabs", slug: "elevenlabs", description: "AI voice synthesis credits.", logo: "🎙️", apiEndpoint: "api.elevenlabs.io", supported: true, discoverable: true, creditsPerCall: null },
+  { id: "p8", name: "Midjourney", slug: "midjourney", description: "AI image generation credits.", logo: "🎨", apiEndpoint: "api.midjourney.com", supported: true, discoverable: true, creditsPerCall: null },
+  { id: "p9", name: "Stability AI", slug: "stability", description: "Stable Diffusion credits.", logo: "✨", apiEndpoint: "api.stability.ai", supported: true, discoverable: true, creditsPerCall: null },
+  { id: "p10", name: "Perplexity", slug: "perplexity", description: "AI search credits.", logo: "🔍", apiEndpoint: "api.perplexity.ai", supported: true, discoverable: true, creditsPerCall: null },
 ]
 
 export default function SellPage() {

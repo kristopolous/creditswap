@@ -2,8 +2,10 @@ import fs from "fs"
 import path from "path"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import rehypeHighlight from "rehype-highlight"
 import type { Components } from "react-markdown"
 import type { ReactNode } from "react"
+import "highlight.js/styles/atom-one-dark.css"
 
 function slugify(text: string): string {
   return text
@@ -106,12 +108,15 @@ export default function DocsPage() {
             prose-h3:bg-brand-500/5 prose-h3:-mx-2 prose-h3:px-2 prose-h3:py-1 prose-h3:rounded-lg prose-h3:border prose-h3:border-brand-500/10
             prose-a:text-brand-400 prose-a:no-underline hover:prose-a:underline
             prose-strong:text-gray-200
-            prose-table:text-sm prose-td:pr-4 prose-th:pr-4 prose-th:text-left prose-th:font-semibold prose-th:text-gray-300
+            prose-table:w-full prose-table:text-sm prose-table:border-collapse
+            prose-th:border prose-th:border-gray-700/50 prose-th:px-4 prose-th:py-2.5 prose-th:text-left prose-th:font-semibold prose-th:text-gray-200 prose-th:bg-gray-800/50
+            prose-td:border prose-td:border-gray-700/50 prose-td:px-4 prose-td:py-2.5 prose-td:text-gray-300
+            prose-table:rounded-xl prose-table:overflow-hidden
             prose-hr:border-gray-800 prose-hr:my-10
             prose-p:text-gray-300 prose-p:leading-relaxed prose-p:my-4
             prose-li:text-gray-300 prose-li:my-1"
           >
-            <ReactMarkdown remarkPlugins={[remarkGfm]} components={components}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]} components={components}>
               {content}
             </ReactMarkdown>
           </article>

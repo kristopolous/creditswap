@@ -7,6 +7,29 @@ export interface Platform {
   apiEndpoint: string
   supported: boolean
   discoverable: boolean
+  creditsPerCall: number | null
+}
+
+export interface UsageLog {
+  id: string
+  apiKeyId: string
+  buyOrderId: string | null
+  platformId: string
+  endpoint: string
+  method: string
+  creditsCharged: number
+  statusCode: number | null
+  ipAddress: string | null
+  createdAt: string
+}
+
+export interface UsageStats {
+  totalCreditsPurchased: number
+  totalCreditsUsed: number
+  totalCreditsRemaining: number
+  totalCalls: number
+  usageByEndpoint: { endpoint: string; calls: number; credits: number }[]
+  usageByDay: { date: string; credits: number; calls: number }[]
 }
 
 export interface SellOrder {

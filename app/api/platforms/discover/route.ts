@@ -15,6 +15,7 @@ export async function POST(req: Request) {
     apiEndpoint: endpoint,
     supported: true,
     discoverable: true,
+    creditsPerCall: null,
   }
 
   return NextResponse.json({

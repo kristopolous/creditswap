@@ -32,6 +32,7 @@ export default function PlatformsPage() {
       apiEndpoint: newPlatform.apiEndpoint || `api.${slug}.com`,
       supported: false,
       discoverable: true,
+      creditsPerCall: null,
     }
 
     setPlatforms([...platforms, plat])

@@ -1,5 +1,6 @@
-import { getPlatforms, createPlatform } from "@/lib/data"
+import { getPlatforms, createPlatform, updatePlatformCreditsPerCall } from "@/lib/data"
 import { json, error, parseBody } from "@/lib/api-helpers"
+import { discoverCreditsPerCall } from "@/lib/discover"
 
 export const runtime = "nodejs"
 
@@ -18,6 +19,16 @@ export async function POST(req: Request) {
   const apiEndpoint = (body.apiEndpoint as string) || `api.${name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")}.com`
 
   const service = await createPlatform(name.trim(), apiEndpoint, body.description as string | undefined)
+
+  try {
+    const discovery = await discoverCreditsPerCall(name, apiEndpoint)
+    if (discovery.creditsPerCall !== null) {
+      await updatePlatformCreditsPerCall(service.id, discovery.creditsPerCall)
+      service.creditsPerCall = discovery.creditsPerCall
+    }
+  } catch {
+    // discovery failure is non-blocking
+  }
 
   return json({ service }, 201)
 }
