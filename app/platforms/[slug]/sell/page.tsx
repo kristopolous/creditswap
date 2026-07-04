@@ -25,6 +25,13 @@ export default function SellPage() {
       .catch(() => setLoading(false))
   }, [slug])
 
+  useEffect(() => {
+    fetch(`/api/v1/orderbook/${slug}`)
+      .then((r) => r.json())
+      .then(setOrderBook)
+      .catch(() => {})
+  }, [slug])
+
   if (loading) return <div className="py-16 text-center text-gray-500">Loading...</div>
   if (!platform) return <div className="py-16 text-center text-gray-500">Platform not found.</div>
 
@@ -135,7 +142,7 @@ function SellForm({ platform }: { platform: Platform }) {
               Back to {platform.name}
             </a>
             <h1 className="mt-3 text-2xl font-bold text-white">
-              Sell {platform.logo} {platform.name} Credits
+              Sell {platform.name} Credits
             </h1>
           </div>
 
@@ -241,10 +248,25 @@ function SellForm({ platform }: { platform: Platform }) {
             )}
 
             {orderType === "market" && (
-              <div className="rounded-sm bg-gray-950/50 border border-gray-800/50 px-4 py-3">
+              <div className="rounded-sm bg-gray-950/50 border border-gray-800/50 px-4 py-3 space-y-2">
                 <p className="text-sm text-gray-400">
                   Listed at the <strong className="text-gray-200">highest bid price</strong> — matched automatically.
                 </p>
+                {bestBid > 0 && numAmount > 0 && (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Best bid</span>
+                      <span className="font-medium text-gray-200">${bestBid.toFixed(4)} / credit</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-400">Estimated value</span>
+                      <span className="font-medium text-gray-200">${(numAmount * bestBid).toFixed(2)}</span>
+                    </div>
+                  </>
+                )}
+                {bestBid === 0 && numAmount > 0 && (
+                  <p className="text-xs text-yellow-500">No active buy orders — market may not fill immediately.</p>
+                )}
               </div>
             )}
 
