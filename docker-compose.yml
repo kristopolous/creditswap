@@ -16,33 +16,24 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
-    networks:
-      - appnet
     restart: unless-stopped
 
   web:
     build: .
     container_name: creditswap-web
-    ports:
-      - "3000:3000"
+    network_mode: host
     volumes:
       - .:/app
     environment:
-      PGHOST: postgres
-      PGPORT: "5432"
+      PGHOST: localhost
+      PGPORT: "5433"
       PGUSER: creditswap
       PGPASSWORD: creditswap_dev
       PGDATABASE: creditswap
     depends_on:
       postgres:
         condition: service_healthy
-    networks:
-      - appnet
     restart: unless-stopped
 
 volumes:
   pgdata:
-
-networks:
-  appnet:
-    driver: bridge
