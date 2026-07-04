@@ -4,8 +4,12 @@ import { useSession, signOut } from "next-auth/react"
 import { useState } from "react"
 
 export function NavActions() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [open, setOpen] = useState(false)
+
+  if (status === "loading") {
+    return <div className="h-9 w-9" />
+  }
 
   if (session?.user) {
     return (

@@ -24,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <span className="text-xs font-medium text-brand-400">.ai</span>
               </a>
               <div className="flex items-center gap-3">
+                <a href="/how-to-use" className="btn-ghost">How to Use</a>
                 <a href="/platforms" className="btn-ghost">Platforms</a>
                 <a href="/sell" className="btn-ghost">Sell</a>
                 <a href="/buy" className="btn-primary">Buy</a>
