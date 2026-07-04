@@ -29,6 +29,8 @@ CREATE TABLE IF NOT EXISTS platforms (
   supported     BOOLEAN DEFAULT true,
   discoverable  BOOLEAN DEFAULT true,
   credits_per_call  NUMERIC(10,6),       -- default credits consumed per API call (NULL = unknown)
+  cost_model        VARCHAR(20) DEFAULT 'per_call',  -- per_call | ongoing | hybrid
+  credits_per_hour  NUMERIC(10,4),       -- ongoing cost per hour (NULL if not applicable)
   created_at        TIMESTAMPTZ DEFAULT now()
 );
 
@@ -127,6 +129,9 @@ CREATE TABLE IF NOT EXISTS usage_log (
   endpoint        VARCHAR(512) NOT NULL,
   method          VARCHAR(10) NOT NULL,
   credits_charged NUMERIC(20,2) NOT NULL,
+  cost_type       VARCHAR(20) DEFAULT 'per_call',  -- per_call | ongoing
+  rate            NUMERIC(10,4),                   -- credits per unit time (for ongoing)
+  unit            VARCHAR(20),                     -- hour | day | month (for ongoing)
   status_code     INT,
   ip_address      VARCHAR(45),
   created_at      TIMESTAMPTZ DEFAULT now()

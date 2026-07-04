@@ -31,9 +31,9 @@ export default function ProxyReadmePage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 lg:px-8">
-      <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-8 sm:p-12">
+      <div className="rounded border border-gray-800/50 bg-gray-900/60 p-8 sm:p-12">
         <article className="prose prose-invert prose-gray max-w-none
-          prose-code:rounded-lg prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm
+          prose-code:rounded-sm prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm
           prose-pre:bg-gray-800 prose-pre:border prose-pre:border-gray-700/50
           prose-headings:text-white
           prose-a:text-brand-400 prose-a:no-underline hover:prose-a:underline

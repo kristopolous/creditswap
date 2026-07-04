@@ -33,6 +33,8 @@ export default function PlatformsPage() {
       supported: false,
       discoverable: true,
       creditsPerCall: null,
+      costModel: "per_call",
+      creditsPerHour: null,
     }
 
     setPlatforms([...platforms, plat])
@@ -57,7 +59,7 @@ export default function PlatformsPage() {
         </div>
 
         {showForm && (
-          <div className="mt-8 rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-8">
+          <div className="mt-8 rounded border border-gray-800/50 bg-gray-900/60 p-8">
             <h3 className="text-lg font-semibold text-white">Add a Platform</h3>
             <p className="mt-1 text-sm text-gray-400">
               We&apos;ll discover available credits and create a compatible endpoint.

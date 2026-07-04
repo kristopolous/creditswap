@@ -47,7 +47,7 @@ export default function SellPage() {
           {platforms.map((p) => (
             <div key={p.id} className="glass-card p-6">
               <div className="mb-5 flex items-center gap-3">
-                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-800/50 text-2xl">
+                <span className="flex h-12 w-12 items-center justify-center rounded-sm bg-gray-800/50 text-2xl">
                   {p.logo}
                 </span>
                 <div>

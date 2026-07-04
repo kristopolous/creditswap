@@ -24,7 +24,7 @@ export default async function PlatformPage({ params: { slug } }: { params: { slu
     <div className="py-12 sm:py-16">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-5">
-          <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50 text-4xl shadow-lg">
+          <span className="flex h-16 w-16 items-center justify-center rounded bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50 text-4xl shadow-lg">
             {platform.logo}
           </span>
           <div>
@@ -56,15 +56,15 @@ export default async function PlatformPage({ params: { slug } }: { params: { slu
           </div>
         </div>
 
-        <div className="mt-8 rounded-2xl border border-brand-500/20 bg-gradient-to-br from-brand-500/5 to-brand-500/[0.02] p-6">
+        <div className="mt-8 rounded border border-brand-500/20 bg-gradient-to-br from-brand-500/5 to-brand-500/[0.02] p-6">
           <div className="flex items-center gap-2 mb-3">
-            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-brand-500/10 text-xs">{"\uD83D\uDD17"}</span>
+            <span className="flex h-6 w-6 items-center justify-center rounded-sm bg-brand-500/10 text-xs">{"\uD83D\uDD17"}</span>
             <h3 className="font-semibold text-white">Proxy Endpoint</h3>
           </div>
           <p className="text-sm text-gray-400">
             Use this endpoint to access {platform.name} credits through creditswap:
           </p>
-          <div className="mt-3 flex items-center gap-2 rounded-xl bg-gray-950 border border-gray-800 px-4 py-3">
+          <div className="mt-3 flex items-center gap-2 rounded-sm bg-gray-950 border border-gray-800 px-4 py-3">
             <code className="flex-1 text-sm font-mono text-brand-300">
               creditswap.ai/{platform.slug}
             </code>
@@ -82,7 +82,7 @@ export default async function PlatformPage({ params: { slug } }: { params: { slu
             {deal ? (
               <BuySection platform={platform} deal={deal} minPrice={minPrice} />
             ) : (
-              <div className="mt-4 rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-8 text-center">
+              <div className="mt-4 rounded border border-gray-800/50 bg-gray-900/60 p-8 text-center">
                 <p className="text-gray-500">No sell orders available right now.</p>
                 <p className="text-xs text-gray-600 mt-1">Check back later or browse other platforms.</p>
               </div>
@@ -102,7 +102,7 @@ export default async function PlatformPage({ params: { slug } }: { params: { slu
               </a>
             </div>
 
-            <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
+            <div className="rounded border border-gray-800/50 bg-gray-900/60 overflow-hidden">
               <div className="grid grid-cols-3 gap-4 border-b border-gray-800/50 px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                 <span>Price</span>
                 <span className="text-right">Volume</span>
@@ -150,7 +150,7 @@ export default async function PlatformPage({ params: { slug } }: { params: { slu
           </div>
         </div>
 
-        <div className="mt-10 rounded-2xl border border-gray-800/50 bg-gradient-to-br from-gray-900/60 to-gray-900/30 backdrop-blur-xl p-6">
+        <div className="mt-10 rounded border border-gray-800/50 bg-gradient-to-br from-gray-900/60 to-gray-900/30 p-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold text-white">Sell {platform.name} Credits</h2>

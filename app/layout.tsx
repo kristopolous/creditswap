@@ -14,10 +14,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="min-h-screen bg-gray-950">
         <AuthProvider>
-          <nav className="sticky top-0 z-50 border-b border-gray-800/50 bg-gray-950/80 backdrop-blur-xl">
+          <nav className="sticky top-0 z-50 border-b border-gray-800/50 bg-gray-950/80">
             <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
               <a href="/" className="group flex items-center gap-2.5">
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-lg shadow-lg shadow-brand-500/20 transition-transform duration-200 group-hover:scale-105 group-hover:shadow-brand-500/30">
+                <span className="flex h-9 w-9 items-center justify-center rounded-sm bg-gradient-to-br from-brand-500 to-brand-700 text-lg shadow-lg shadow-brand-500/20 transition-transform duration-200 group-hover:scale-105 group-hover:shadow-brand-500/30">
                   <span className="drop-shadow-sm">🔄</span>
                 </span>
                 <span className="text-xl font-bold tracking-tight text-white">creditswap</span>
@@ -39,7 +39,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-between gap-6 sm:flex-row">
               <div className="flex items-center gap-3">
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 text-sm">
+                <span className="flex h-8 w-8 items-center justify-center rounded-sm bg-gradient-to-br from-brand-500 to-brand-700 text-sm">
                   🔄
                 </span>
                 <span className="font-semibold text-gray-300">creditswap.ai</span>

@@ -62,7 +62,7 @@ const components: Components = {
     return <h3 id={slugify(text)} className="scroll-mt-24 group" {...props}>{children}</h3>
   },
   table: ({ children }) => (
-    <div className="w-full overflow-hidden rounded-xl border border-gray-700/50">
+    <div className="w-full overflow-hidden rounded-sm border border-gray-700/50">
       <table className="w-full text-sm border-collapse">{children}</table>
     </div>
   ),
@@ -107,16 +107,16 @@ export default function DocsPage() {
       </aside>
 
       <div className="min-w-0 flex-1 lg:pl-12">
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-8 sm:p-12">
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-8 sm:p-12">
           <article className="prose prose-invert prose-gray max-w-none
-            prose-code:rounded-lg prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-mono
-            prose-pre:bg-gray-950 prose-pre:border prose-pre:border-gray-800 prose-pre:rounded-xl prose-pre:shadow-inner
+            prose-code:rounded-sm prose-code:bg-gray-800 prose-code:px-1.5 prose-code:py-0.5 prose-code:text-sm prose-code:font-mono
+            prose-pre:bg-gray-950 prose-pre:border prose-pre:border-gray-800 prose-pre:rounded-sm prose-pre:shadow-inner
             prose-headings:font-semibold prose-headings:tracking-tight
             prose-h1:text-3xl prose-h1:text-brand-300 prose-h1:mb-8 prose-h1:font-bold
             prose-h2:text-xl prose-h2:mt-14 prose-h2:mb-5 prose-h2:pb-3 prose-h2:border-b prose-h2:border-gray-700/50
             prose-h2:text-white prose-h2:font-bold
             prose-h3:text-base prose-h3:mt-10 prose-h3:mb-4 prose-h3:text-brand-200 prose-h3:font-mono prose-h3:tracking-normal
-            prose-h3:bg-brand-500/5 prose-h3:-mx-2 prose-h3:px-2 prose-h3:py-1 prose-h3:rounded-lg prose-h3:border prose-h3:border-brand-500/10
+            prose-h3:bg-brand-500/5 prose-h3:-mx-2 prose-h3:px-2 prose-h3:py-1 prose-h3:rounded-sm prose-h3:border prose-h3:border-brand-500/10
             prose-a:text-brand-400 prose-a:no-underline hover:prose-a:underline
             prose-strong:text-gray-200
 

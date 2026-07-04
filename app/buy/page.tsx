@@ -15,7 +15,7 @@ export default async function BuyPage() {
         </div>
 
         {deals.length === 0 ? (
-          <div className="mt-12 rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-12 text-center">
+          <div className="mt-12 rounded border border-gray-800/50 bg-gray-900/60 p-12 text-center">
             <span className="text-4xl">📭</span>
             <h3 className="mt-4 text-lg font-semibold text-white">No Active Deals</h3>
             <p className="mt-2 text-sm text-gray-400">
@@ -33,9 +33,9 @@ export default async function BuyPage() {
               ))}
             </div>
 
-            <div className="mt-12 rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-8">
+            <div className="mt-12 rounded border border-gray-800/50 bg-gray-900/60 p-8">
               <div className="flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-lg">📊</span>
+                <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-amber-500/10 text-lg">📊</span>
                 <div>
                   <h3 className="font-semibold text-white">Limit Orders</h3>
                   <p className="text-sm text-gray-400">
@@ -59,7 +59,7 @@ export default async function BuyPage() {
               { num: "3", title: "Proxy Setup", desc: "After purchase, use the Go proxy to route API calls through creditswap." },
             ].map((step) => (
               <div key={step.num} className="flex gap-4 glass-card-static p-5">
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 text-sm font-bold text-brand-300">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 text-sm font-bold text-brand-300">
                   {step.num}
                 </span>
                 <div>
@@ -69,7 +69,7 @@ export default async function BuyPage() {
               </div>
             ))}
           </div>
-          <div className="mt-8 rounded-xl bg-gradient-to-br from-brand-500/10 to-brand-500/5 border border-brand-500/20 p-5 text-center">
+          <div className="mt-8 rounded-sm bg-gradient-to-br from-brand-500/10 to-brand-500/5 border border-brand-500/20 p-5 text-center">
             <p className="text-sm text-gray-300">
               Learn how to set up the proxy &mdash;{" "}
               <a href="/how-to-buy" className="text-brand-400 hover:underline font-medium">

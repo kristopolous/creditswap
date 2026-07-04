@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest --forceExit --detectOpenHandles"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^6.7.0",

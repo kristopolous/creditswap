@@ -59,25 +59,27 @@ export default function UsagePage() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6">
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Purchased</p>
           <p className="mt-2 text-3xl font-bold text-white">{stats.totalCreditsPurchased.toLocaleString()}</p>
         </div>
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6">
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Used</p>
           <p className="mt-2 text-3xl font-bold text-amber-400">{stats.totalCreditsUsed.toLocaleString()}</p>
         </div>
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6">
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Remaining</p>
           <p className="mt-2 text-3xl font-bold text-green-400">{stats.totalCreditsRemaining.toLocaleString()}</p>
         </div>
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6">
-          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Total Calls</p>
-          <p className="mt-2 text-3xl font-bold text-white">{stats.totalCalls.toLocaleString()}</p>
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6">
+          <p className="text-xs font-medium uppercase tracking-wider text-gray-500">{stats.ongoingCredits > 0 ? "Ongoing Cost" : "Total Calls"}</p>
+          <p className="mt-2 text-3xl font-bold text-white">
+            {stats.ongoingCredits > 0 ? `${stats.ongoingCredits.toLocaleString()}/hr` : stats.totalCalls.toLocaleString()}
+          </p>
         </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6">
+      <div className="mt-6 rounded border border-gray-800/50 bg-gray-900/60 p-6">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-white">Consumption</h2>
           <span className="text-xs text-gray-500">{usagePercent}% used</span>
@@ -91,7 +93,7 @@ export default function UsagePage() {
       </div>
 
       {stats.usageByEndpoint.length > 0 && (
-        <div className="mt-8 rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
+        <div className="mt-8 rounded border border-gray-800/50 bg-gray-900/60 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-800/50">
             <h2 className="text-sm font-semibold text-white">Usage by Endpoint</h2>
           </div>
@@ -111,7 +113,7 @@ export default function UsagePage() {
       )}
 
       {stats.usageByDay.length > 0 && (
-        <div className="mt-6 rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
+        <div className="mt-6 rounded border border-gray-800/50 bg-gray-900/60 overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-800/50">
             <h2 className="text-sm font-semibold text-white">Usage by Day</h2>
           </div>
@@ -132,29 +134,37 @@ export default function UsagePage() {
 
       {logs.length > 0 && (
         <div className="mt-6">
-          <details className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
+          <details className="rounded border border-gray-800/50 bg-gray-900/60 overflow-hidden">
             <summary className="px-6 py-4 text-sm font-semibold text-white cursor-pointer hover:bg-gray-800/30 transition-colors">
               Raw Usage Log ({logs.length} entries)
             </summary>
-            <div className="grid grid-cols-5 gap-4 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider border-t border-gray-800/30">
+            <div className="grid grid-cols-6 gap-4 px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider border-t border-gray-800/30">
               <span>Time</span>
               <span>Method</span>
               <span className="col-span-2">Endpoint</span>
-              <span className="text-right">Credits</span>
+              <span className="text-right">Cost</span>
+              <span>Type</span>
             </div>
             {logs.map((entry) => (
-              <div key={entry.id} className="grid grid-cols-5 gap-4 px-6 py-2 text-xs border-t border-gray-800/20 last:border-0">
+              <div key={entry.id} className="grid grid-cols-6 gap-4 px-6 py-2 text-xs border-t border-gray-800/20 last:border-0">
                 <span className="text-gray-500">{new Date(entry.createdAt).toLocaleString()}</span>
                 <span className="text-gray-400 font-mono">{entry.method}</span>
                 <span className="col-span-2 text-gray-300 font-mono truncate">{entry.endpoint}</span>
-                <span className="text-right text-amber-400 font-mono">{entry.creditsCharged.toFixed(2)}</span>
+                <span className="text-right text-amber-400 font-mono">
+                  {entry.costType === "ongoing"
+                    ? `${entry.rate?.toFixed(2) ?? entry.creditsCharged.toFixed(2)}/${entry.unit ?? "hr"}`
+                    : entry.creditsCharged.toFixed(2)}
+                </span>
+                <span className={`font-medium ${entry.costType === "ongoing" ? "text-blue-400" : "text-gray-500"}`}>
+                  {entry.costType === "ongoing" ? "ongoing" : "per-call"}
+                </span>
               </div>
             ))}
           </details>
         </div>
       )}
 
-      <div className="mt-8 rounded-xl bg-amber-500/5 border border-amber-500/20 p-5 text-center">
+      <div className="mt-8 rounded-sm bg-amber-500/5 border border-amber-500/20 p-5 text-center">
         <p className="text-sm text-gray-300">
           If you believe the accounting is incorrect or fraud has occurred,{" "}
           <a href="mailto:disputes@creditswap.ai" className="text-brand-400 hover:underline font-medium">

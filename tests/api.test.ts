@@ -295,6 +295,76 @@ describe("creditswap API v1", () => {
     })
   })
 
+  // ── Cost Types ────────────────────────────────────────────
+
+  describe("POST /usage/log (cost types)", () => {
+    it("logs per-call cost by default", async () => {
+      const create = await api("/keys", {
+        method: "POST",
+        body: JSON.stringify({ platformId: "p1", platformName: "Cloudify", amount: 200, pricePerCredit: 0.20 }),
+      })
+      const key = create.body.key
+
+      const res = await api("/usage/log", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}` },
+        body: JSON.stringify({ endpoint: "/test", method: "GET" }),
+      })
+      expect(res.status).toBe(200)
+      expect(res.body.costType).toBe("per_call")
+      expect(res.body.rate).toBeNull()
+      expect(res.body.unit).toBeNull()
+    })
+
+    it("logs ongoing cost with rate and unit", async () => {
+      const create = await api("/keys", {
+        method: "POST",
+        body: JSON.stringify({ platformId: "p1", platformName: "Cloudify", amount: 500, pricePerCredit: 0.20 }),
+      })
+      const key = create.body.key
+
+      const res = await api("/usage/log", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}` },
+        body: JSON.stringify({
+          endpoint: "/vm/start",
+          method: "POST",
+          costType: "ongoing",
+          rate: 10,
+          unit: "hour",
+        }),
+      })
+      expect(res.status).toBe(200)
+      expect(res.body.costType).toBe("ongoing")
+      expect(res.body.rate).toBe(10)
+      expect(res.body.unit).toBe("hour")
+      expect(res.body.consumed).toBe(10)
+    })
+
+    it("logs ongoing cost via /keys/:key/use", async () => {
+      const create = await api("/keys", {
+        method: "POST",
+        body: JSON.stringify({ platformId: "p1", platformName: "Cloudify", amount: 300, pricePerCredit: 0.20 }),
+      })
+      const key = create.body.key
+
+      const res = await api(`/keys/${key}/use`, {
+        method: "POST",
+        body: JSON.stringify({
+          endpoint: "/vm/run",
+          method: "GET",
+          costType: "ongoing",
+          rate: 5,
+          unit: "hour",
+        }),
+      })
+      expect(res.status).toBe(200)
+      expect(res.body.costType).toBe("ongoing")
+      expect(res.body.rate).toBe(5)
+      expect(res.body.unit).toBe("hour")
+    })
+  })
+
   // ── Auth ──────────────────────────────────────────────────
 
   describe("POST /auth", () => {

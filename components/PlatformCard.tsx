@@ -6,7 +6,7 @@ export function PlatformCard({ platform }: { platform: Platform }) {
   return (
     <a href={`/platforms/${platform.slug}`} className="glass-card group block">
       <div className="mb-4 flex items-center gap-3">
-        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-gray-800/50 text-2xl">
+        <span className="flex h-12 w-12 items-center justify-center rounded-sm bg-gray-800/50 text-2xl">
           {platform.logo}
         </span>
         <div className="min-w-0">

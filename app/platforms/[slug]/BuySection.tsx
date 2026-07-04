@@ -67,9 +67,9 @@ export function BuySection({
 
   if (result) {
     return (
-      <div className="rounded-2xl border border-brand-500/20 bg-gradient-to-br from-brand-500/10 to-brand-500/5 p-6">
+      <div className="rounded border border-brand-500/20 bg-gradient-to-br from-brand-500/10 to-brand-500/5 p-6">
         <div className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-500/10 text-lg">
+          <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-green-500/10 text-lg">
             {result.status === "pending" ? "⏳" : "✅"}
           </span>
           <div>
@@ -81,7 +81,7 @@ export function BuySection({
         </div>
         <div className="mt-4 space-y-2">
           {result.proxyKey && (
-            <div className="rounded-xl bg-gray-900/80 border border-gray-800 p-4">
+            <div className="rounded-sm bg-gray-900/80 border border-gray-800 p-4">
               <p className="text-xs text-gray-500 mb-1">Your Proxy Key</p>
               <p className="font-mono text-base font-bold text-brand-400 break-all">{result.proxyKey}</p>
             </div>
@@ -112,7 +112,7 @@ export function BuySection({
   }
 
   return (
-    <form onSubmit={handleBuy} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
+    <form onSubmit={handleBuy} className="rounded border border-gray-800/50 bg-gray-900/60 overflow-hidden">
       <div className="flex border-b border-gray-800/50">
         {tabs.map((tab) => (
           <button
@@ -200,7 +200,7 @@ export function BuySection({
         )}
 
         {orderType === "market" && (
-          <div className="rounded-lg bg-gray-950/50 border border-gray-800/50 px-4 py-3">
+          <div className="rounded-sm bg-gray-950/50 border border-gray-800/50 px-4 py-3">
             <div className="flex justify-between text-sm">
               <span className="text-gray-400">Est. price</span>
               <span className="font-medium text-gray-200">${minPrice.toFixed(2)}</span>
@@ -208,7 +208,7 @@ export function BuySection({
           </div>
         )}
 
-        <div className="rounded-lg bg-gray-950/50 border border-gray-800/50 px-4 py-3 space-y-1.5">
+        <div className="rounded-sm bg-gray-950/50 border border-gray-800/50 px-4 py-3 space-y-1.5">
           <div className="flex justify-between text-sm">
             <span className="text-gray-400">Subtotal</span>
             <span className="font-medium text-gray-200">${subtotal.toFixed(2)}</span>

@@ -78,7 +78,7 @@ export default async function Home() {
               { icon: "🔑", title: "Get Proxy Key", desc: "Buyers get a proxy key. Use the creditswap proxy to transparently redirect API calls." },
             ].map((item, i) => (
               <div key={item.title} className="glass-card p-8 text-center" style={{ animationDelay: `${0.1 + i * 0.15}s` }}>
-                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-500/10 to-brand-500/5 border border-brand-500/10">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded bg-gradient-to-br from-brand-500/10 to-brand-500/5 border border-brand-500/10">
                   <span className="text-2xl">{item.icon}</span>
                 </div>
                 <h3 className="mt-6 text-lg font-semibold text-white">{item.title}</h3>

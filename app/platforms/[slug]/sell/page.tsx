@@ -1,21 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Platform } from "@/lib/types"
-import { notFound, useParams } from "next/navigation"
-
-const platforms: Platform[] = [
-  { id: "p1", name: "Cloudify", slug: "cloudify", description: "Cloud compute and AI training credits.", logo: "☁️", apiEndpoint: "api.cloudify.com", supported: true, discoverable: true, creditsPerCall: null },
-  { id: "p2", name: "OpenAI", slug: "openai", description: "GPT API credits for language models.", logo: "🤖", apiEndpoint: "api.openai.com", supported: true, discoverable: true, creditsPerCall: null },
-  { id: "p3", name: "Anthropic", slug: "anthropic", description: "Claude API credits.", logo: "🧠", apiEndpoint: "api.anthropic.com", supported: true, discoverable: true, creditsPerCall: null },
-  { id: "p4", name: "Replicate", slug: "replicate", description: "Open-source model API credits.", logo: "🔄", apiEndpoint: "api.replicate.com", supported: true, discoverable: true, creditsPerCall: null },
-  { id: "p5", name: "Hugging Face", slug: "huggingface", description: "Inference API credits.", logo: "🤗", apiEndpoint: "api.huggingface.co", supported: true, discoverable: true, creditsPerCall: null },
-  { id: "p6", name: "Together AI", slug: "together", description: "Open-source LLM API credits.", logo: "🔗", apiEndpoint: "api.together.xyz", supported: true, discoverable: true, creditsPerCall: null },
-  { id: "p7", name: "ElevenLabs", slug: "elevenlabs", description: "AI voice synthesis credits.", logo: "🎙️", apiEndpoint: "api.elevenlabs.io", supported: true, discoverable: true, creditsPerCall: null },
-  { id: "p8", name: "Midjourney", slug: "midjourney", description: "AI image generation credits.", logo: "🎨", apiEndpoint: "api.midjourney.com", supported: true, discoverable: true, creditsPerCall: null },
-  { id: "p9", name: "Stability AI", slug: "stability", description: "Stable Diffusion credits.", logo: "✨", apiEndpoint: "api.stability.ai", supported: true, discoverable: true, creditsPerCall: null },
-  { id: "p10", name: "Perplexity", slug: "perplexity", description: "AI search credits.", logo: "🔍", apiEndpoint: "api.perplexity.ai", supported: true, discoverable: true, creditsPerCall: null },
-]
+import { useParams } from "next/navigation"
 
 const tabs: { key: "market" | "limit"; label: string }[] = [
   { key: "market", label: "Market" },
@@ -25,8 +12,21 @@ const tabs: { key: "market" | "limit"; label: string }[] = [
 export default function SellPage() {
   const params = useParams()
   const slug = params.slug as string
-  const platform = platforms.find((p) => p.slug === slug)
-  if (!platform) return notFound()
+  const [platform, setPlatform] = useState<Platform | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch(`/api/v1/services/${slug}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.service) setPlatform(d.service)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [slug])
+
+  if (loading) return <div className="py-16 text-center text-gray-500">Loading...</div>
+  if (!platform) return <div className="py-16 text-center text-gray-500">Platform not found.</div>
 
   return <SellForm platform={platform} />
 }
@@ -100,7 +100,7 @@ function SellForm({ platform }: { platform: Platform }) {
     return (
       <div className="py-16">
         <div className="mx-auto max-w-lg px-4 text-center">
-          <div className="rounded-2xl border border-brand-500/20 bg-gradient-to-br from-brand-500/10 to-brand-500/5 p-8">
+          <div className="rounded border border-brand-500/20 bg-gradient-to-br from-brand-500/10 to-brand-500/5 p-8">
             <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-green-500/10 text-3xl">🎉</span>
             <h2 className="mt-5 text-xl font-bold text-white">Order Listed!</h2>
             <p className="mt-2 text-sm text-gray-400">
@@ -136,7 +136,7 @@ function SellForm({ platform }: { platform: Platform }) {
             </h1>
           </div>
 
-          <form onSubmit={handleCheckCredits} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6 space-y-4">
+          <form onSubmit={handleCheckCredits} className="rounded border border-gray-800/50 bg-gray-900/60 p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-300">API Key</label>
               <p className="text-xs text-gray-500 mt-0.5">
@@ -173,7 +173,7 @@ function SellForm({ platform }: { platform: Platform }) {
           </h1>
         </div>
 
-        <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
+        <form onSubmit={handleSubmit} className="rounded border border-gray-800/50 bg-gray-900/60 overflow-hidden">
           <div className="flex border-b border-gray-800/50">
             {tabs.map((tab) => (
               <button
@@ -192,7 +192,7 @@ function SellForm({ platform }: { platform: Platform }) {
           </div>
 
           <div className="p-5 space-y-4">
-            <div className="rounded-lg bg-gradient-to-br from-brand-500/10 to-brand-500/5 border border-brand-500/20 px-4 py-3 text-center">
+            <div className="rounded-sm bg-gradient-to-br from-brand-500/10 to-brand-500/5 border border-brand-500/20 px-4 py-3 text-center">
               <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Available Credits</p>
               <p className="text-2xl font-bold text-brand-300">{totalCredits.toLocaleString()}</p>
             </div>
@@ -238,7 +238,7 @@ function SellForm({ platform }: { platform: Platform }) {
             )}
 
             {orderType === "market" && (
-              <div className="rounded-lg bg-gray-950/50 border border-gray-800/50 px-4 py-3">
+              <div className="rounded-sm bg-gray-950/50 border border-gray-800/50 px-4 py-3">
                 <p className="text-sm text-gray-400">
                   Listed at the <strong className="text-gray-200">highest bid price</strong> — matched automatically.
                 </p>
@@ -257,7 +257,7 @@ function SellForm({ platform }: { platform: Platform }) {
             </div>
 
             {(orderType === "limit" && numAmount > 0 && price > 0) && (
-              <div className="rounded-lg bg-gray-950/50 border border-gray-800/50 px-4 py-3 space-y-1.5">
+              <div className="rounded-sm bg-gray-950/50 border border-gray-800/50 px-4 py-3 space-y-1.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Listing value</span>
                   <span className="font-medium text-gray-200">${listingValue.toFixed(2)}</span>

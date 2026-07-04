@@ -7,10 +7,10 @@ export default function HowToUsePage() {
       <div className="mt-12 space-y-12">
         <section>
           <div className="flex items-center gap-3 mb-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-500/10 text-lg">📥</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg">📥</span>
             <h2 className="text-xl font-bold text-white">For Buyers</h2>
           </div>
-          <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6 sm:p-8 space-y-6">
+          <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6 sm:p-8 space-y-6">
             <Step num="1" title="Browse Deals">
               Visit the <a href="/buy" className="text-brand-400 hover:underline">Buy page</a> to see all active sell orders across platforms. Deals are sorted by best price.
               You can also browse individual <a href="/platforms" className="text-brand-400 hover:underline">platform pages</a> to see the full order book.
@@ -39,10 +39,10 @@ export default function HowToUsePage() {
 
         <section>
           <div className="flex items-center gap-3 mb-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/10 text-lg">📤</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-red-500/10 text-lg">📤</span>
             <h2 className="text-xl font-bold text-white">For Sellers</h2>
           </div>
-          <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6 sm:p-8 space-y-6">
+          <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6 sm:p-8 space-y-6">
             <Step num="1" title="Choose a Platform">
               Go to any <a href="/platforms" className="text-brand-400 hover:underline">platform page</a> and click "Sell Credits".
               You can also use the <a href="/sell" className="text-brand-400 hover:underline">Sell overview</a> to search for a platform.
@@ -73,10 +73,10 @@ export default function HowToUsePage() {
 
         <section>
           <div className="flex items-center gap-3 mb-4">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 text-lg">⚖️</span>
+            <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-amber-500/10 text-lg">⚖️</span>
             <h2 className="text-xl font-bold text-white">Fees &amp; Accounting</h2>
           </div>
-          <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6 sm:p-8 space-y-4 text-sm text-gray-300 leading-relaxed">
+          <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6 sm:p-8 space-y-4 text-sm text-gray-300 leading-relaxed">
             <p>
               <strong className="text-gray-200">Transaction fee:</strong> A 15% fee is applied to all sales.
               This covers payment processing, proxy infrastructure, and dispute resolution.
@@ -106,7 +106,7 @@ export default function HowToUsePage() {
 function Step({ num, title, children }: { num: string; title: string; children: React.ReactNode }) {
   return (
     <div className="flex gap-4">
-      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 text-xs font-bold text-brand-300">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm bg-gradient-to-br from-brand-500/20 to-brand-500/5 border border-brand-500/20 text-xs font-bold text-brand-300">
         {num}
       </span>
       <div>

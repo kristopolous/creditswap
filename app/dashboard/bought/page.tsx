@@ -29,7 +29,7 @@ export default async function BoughtPage() {
       </div>
 
       {buyOrders.length === 0 ? (
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-12 text-center">
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-12 text-center">
           <span className="text-4xl">📭</span>
           <h3 className="mt-4 text-lg font-semibold text-white">No Purchases Yet</h3>
           <p className="mt-2 text-sm text-gray-400">Buy credits to see your usage logs here.</p>
@@ -38,7 +38,7 @@ export default async function BoughtPage() {
       ) : (
         <div className="space-y-4">
           {buyOrders.map((order) => (
-            <div key={order.id} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
+            <div key={order.id} className="rounded border border-gray-800/50 bg-gray-900/60 overflow-hidden">
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800/30">
                 <div className="flex items-center gap-3">
                   <a href={`/platforms/${order.platformSlug}`} className="text-sm font-semibold text-white hover:text-brand-400 transition-colors">
@@ -74,6 +74,20 @@ export default async function BoughtPage() {
                   </div>
                 </div>
               </div>
+              {order.status === "completed" && order.proxyKey && (
+                <div className="border-t border-gray-800/30 px-6 py-3">
+                  <p className="text-[11px] font-medium text-gray-500 uppercase tracking-wider mb-1">API Key</p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 font-mono text-xs text-brand-300 truncate">{order.proxyKey}</code>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(order.proxyKey)}
+                      className="text-xs text-gray-500 hover:text-gray-300 transition-colors shrink-0"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

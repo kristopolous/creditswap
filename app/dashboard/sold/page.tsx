@@ -28,7 +28,7 @@ export default async function SoldPage() {
       </div>
 
       {sellOrders.length === 0 ? (
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-12 text-center">
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-12 text-center">
           <span className="text-4xl">📭</span>
           <h3 className="mt-4 text-lg font-semibold text-white">No Listings Yet</h3>
           <p className="mt-2 text-sm text-gray-400">List your credits for sale on the marketplace.</p>
@@ -37,7 +37,7 @@ export default async function SoldPage() {
       ) : (
         <div className="space-y-4">
           {sellOrders.map((order) => (
-            <div key={order.id} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
+            <div key={order.id} className="rounded border border-gray-800/50 bg-gray-900/60 overflow-hidden">
               <div className="flex items-center justify-between px-6 py-4 border-b border-gray-800/30">
                 <div className="flex items-center gap-3">
                   <a href={`/platforms/${order.platformSlug}`} className="text-sm font-semibold text-white hover:text-brand-400 transition-colors">

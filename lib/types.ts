@@ -8,6 +8,8 @@ export interface Platform {
   supported: boolean
   discoverable: boolean
   creditsPerCall: number | null
+  costModel: "per_call" | "ongoing" | "hybrid"
+  creditsPerHour: number | null
 }
 
 export interface UsageLog {
@@ -18,6 +20,9 @@ export interface UsageLog {
   endpoint: string
   method: string
   creditsCharged: number
+  costType: "per_call" | "ongoing"
+  rate: number | null
+  unit: string | null
   statusCode: number | null
   ipAddress: string | null
   createdAt: string
@@ -28,6 +33,7 @@ export interface UsageStats {
   totalCreditsUsed: number
   totalCreditsRemaining: number
   totalCalls: number
+  ongoingCredits: number
   usageByEndpoint: { endpoint: string; calls: number; credits: number }[]
   usageByDay: { date: string; credits: number; calls: number }[]
 }

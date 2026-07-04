@@ -28,31 +28,31 @@ export default async function DashboardPage() {
       </div>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6">
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Credits Bought</p>
           <p className="mt-2 text-3xl font-bold text-white">{totalCreditsBought.toLocaleString()}</p>
           <p className="mt-1 text-xs text-gray-500">${totalSpent.toFixed(2)} total spent</p>
         </div>
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6">
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Credits Used</p>
           <p className="mt-2 text-3xl font-bold text-amber-400">{totalCreditsUsed.toLocaleString()}</p>
           <p className="mt-1 text-xs text-gray-500">
             {totalCreditsBought > 0 ? `${Math.round((totalCreditsUsed / totalCreditsBought) * 100)}% consumed` : "—"}
           </p>
         </div>
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6">
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Credits Listed</p>
           <p className="mt-2 text-3xl font-bold text-white">{totalListed.toLocaleString()}</p>
           <p className="mt-1 text-xs text-gray-500">{sellOrders.length} active listings</p>
         </div>
-        <div className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6">
+        <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6">
           <p className="text-xs font-medium uppercase tracking-wider text-gray-500">Platforms</p>
           <p className="mt-2 text-3xl font-bold text-white">{platforms.length}</p>
         </div>
       </div>
 
       <div className="mt-10 grid gap-6 sm:grid-cols-2">
-        <a href="/dashboard/bought" className="group rounded-2xl border border-gray-800/50 bg-gradient-to-br from-gray-900/60 to-gray-900/30 backdrop-blur-xl p-8 hover:border-brand-500/30 transition-all duration-200">
+        <a href="/dashboard/bought" className="group rounded border border-gray-800/50 bg-gradient-to-br from-gray-900/60 to-gray-900/30 p-8 hover:border-brand-500/30 transition-all duration-200">
           <span className="text-3xl">📥</span>
           <h2 className="mt-4 text-lg font-bold text-white group-hover:text-brand-400 transition-colors">Credits Bought</h2>
           <p className="mt-2 text-sm text-gray-400">
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
           </p>
           <p className="mt-1 text-xs text-gray-500">View usage logs, API call breakdown, and remaining credits →</p>
         </a>
-        <a href="/dashboard/sold" className="group rounded-2xl border border-gray-800/50 bg-gradient-to-br from-gray-900/60 to-gray-900/30 backdrop-blur-xl p-8 hover:border-red-500/30 transition-all duration-200">
+        <a href="/dashboard/sold" className="group rounded border border-gray-800/50 bg-gradient-to-br from-gray-900/60 to-gray-900/30 p-8 hover:border-red-500/30 transition-all duration-200">
           <span className="text-3xl">📤</span>
           <h2 className="mt-4 text-lg font-bold text-white group-hover:text-red-400 transition-colors">Credits for Sale</h2>
           <p className="mt-2 text-sm text-gray-400">
@@ -71,7 +71,7 @@ export default async function DashboardPage() {
       </div>
 
       {buyOrders.length === 0 && sellOrders.length === 0 && (
-        <div className="mt-10 rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-12 text-center">
+        <div className="mt-10 rounded border border-gray-800/50 bg-gray-900/60 p-12 text-center">
           <span className="text-4xl">📭</span>
           <h3 className="mt-4 text-lg font-semibold text-white">No Activity Yet</h3>
           <p className="mt-2 text-sm text-gray-400">
