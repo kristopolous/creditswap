@@ -37,7 +37,7 @@ function SignInContent() {
   return (
     <>
       {(error || credError) && (
-        <div className="mt-4 rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3">
+        <div className="rounded-xl bg-red-500/10 border border-red-500/20 px-4 py-3">
           <p className="text-sm text-red-400">
             {credError || (error === "OAuthAccountNotLinked"
               ? "This account is already linked to another sign-in method."
@@ -46,7 +46,7 @@ function SignInContent() {
         </div>
       )}
 
-      <form onSubmit={handleCredentials} className="mt-6 space-y-3">
+      <form onSubmit={handleCredentials} className="space-y-3">
         <input
           type="email"
           placeholder="Email"
@@ -54,6 +54,7 @@ function SignInContent() {
           onChange={(e) => setEmail(e.target.value)}
           className="input-field w-full"
           required
+          autoFocus
         />
         <input
           type="password"
@@ -63,25 +64,21 @@ function SignInContent() {
           className="input-field w-full"
           required
         />
-        <button
-          type="submit"
-          className="btn-primary w-full"
-          disabled={loading}
-        >
+        <button type="submit" className="btn-primary w-full" disabled={loading}>
           {loading ? "Signing in..." : "Sign in with Email"}
         </button>
         <p className="text-xs text-gray-600 text-center">
-          Demo: demo@demo.com / password
+          Demo: <span className="font-mono text-gray-500">demo@demo.com / password</span>
         </p>
       </form>
 
-      <div className="mt-6 flex items-center gap-3">
+      <div className="flex items-center gap-3">
         <div className="h-px flex-1 bg-gray-800" />
         <span className="text-xs text-gray-600">or continue with</span>
         <div className="h-px flex-1 bg-gray-800" />
       </div>
 
-      <div className="mt-6 space-y-3">
+      <div className="space-y-3">
         <button
           onClick={() => signIn("github", { callbackUrl })}
           className="flex w-full items-center justify-center gap-3 rounded-xl border border-gray-700 bg-gray-800/50 px-6 py-3 text-sm font-semibold text-gray-200 transition-all duration-200 hover:bg-gray-700/50 hover:border-gray-600 hover:text-white"
@@ -117,13 +114,18 @@ export default function SignInPage() {
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 shadow-lg shadow-brand-500/20">
             <span className="text-2xl">🔄</span>
           </div>
-          <h1 className="mt-5 text-xl font-bold text-white">Sign in to creditswap</h1>
-          <p className="mt-2 text-sm text-gray-400">Connect your account to start trading.</p>
-          <Suspense fallback={null}>
-            <SignInContent />
-          </Suspense>
+          <h1 className="mt-5 text-xl font-bold text-white">Sign in</h1>
+          <p className="mt-2 text-sm text-gray-400">Welcome back to creditswap.</p>
+          <div className="mt-6 space-y-4">
+            <Suspense fallback={null}>
+              <SignInContent />
+            </Suspense>
+          </div>
           <p className="mt-6 text-xs text-gray-600">
-            By signing in, you agree to the terms of service.
+            Don&apos;t have an account?{" "}
+            <a href="/auth/signup" className="text-brand-400 hover:underline font-medium">
+              Sign up
+            </a>
           </p>
         </div>
       </div>
