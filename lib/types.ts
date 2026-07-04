@@ -3,8 +3,8 @@ export interface Platform {
   name: string
   slug: string
   description: string
-  logo: string
   apiEndpoint: string
+  website: string | null
   supported: boolean
   discoverable: boolean
   creditsPerCall: number | null

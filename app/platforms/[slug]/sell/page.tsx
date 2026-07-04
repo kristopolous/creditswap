@@ -132,8 +132,8 @@ function SellForm({ platform, slug }: { platform: Platform; slug: string }) {
   const numAmount = parseFloat(sellAmount) || 0
   const price = orderType === "limit" ? (parseFloat(pricePerCredit) || 0) : 0
   const listingValue = numAmount * price
-  const fee = listingValue * 0.15
-  const youReceive = listingValue * 0.85
+  const fee = listingValue * 0.0495
+  const youReceive = listingValue * 0.9505
 
   if (!totalCredits) {
     return (
@@ -291,7 +291,7 @@ function SellForm({ platform, slug }: { platform: Platform; slug: string }) {
                   <span className="font-medium text-gray-200">${listingValue.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Fee (15%)</span>
+                  <span className="text-gray-400">Fee (4.95%)</span>
                   <span className="font-medium text-gray-200">${fee.toFixed(2)}</span>
                 </div>
                 <div className="border-t border-gray-800 pt-1.5 flex justify-between text-sm">
@@ -308,12 +308,12 @@ function SellForm({ platform, slug }: { platform: Platform; slug: string }) {
                   <span className="font-medium text-gray-200">${(numAmount * bestBid).toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Fee (15%)</span>
-                  <span className="font-medium text-gray-200">${(numAmount * bestBid * 0.15).toFixed(2)}</span>
+                  <span className="text-gray-400">Fee (4.95%)</span>
+                  <span className="font-medium text-gray-200">${(numAmount * bestBid * 0.0495).toFixed(2)}</span>
                 </div>
                 <div className="border-t border-gray-800 pt-1.5 flex justify-between text-sm">
                   <span className="font-semibold text-gray-200">You receive</span>
-                  <span className="font-bold text-brand-300">${(numAmount * bestBid * 0.85).toFixed(2)}</span>
+                  <span className="font-bold text-brand-300">${(numAmount * bestBid * 0.9505).toFixed(2)}</span>
                 </div>
               </div>
             )}
@@ -329,8 +329,8 @@ function SellForm({ platform, slug }: { platform: Platform; slug: string }) {
             </button>
 
             <p className="text-center text-[11px] text-gray-600">
-              {orderType === "market" && "15% fee deducted from sale proceeds."}
-              {orderType === "limit" && "15% fee deducted only when matched."}
+              {orderType === "market" && "4.95% fee (split 50/50 maker/taker)."}
+              {orderType === "limit" && "4.95% fee (split 50/50 maker/taker)."}
             </p>
           </div>
         </form>

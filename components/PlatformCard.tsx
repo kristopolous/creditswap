@@ -7,7 +7,11 @@ export function PlatformCard({ platform }: { platform: Platform }) {
     <a href={`/platforms/${platform.slug}`} className="glass-card group block">
       <div className="mb-4 flex items-center gap-3">
         <span className="flex h-12 w-12 items-center justify-center rounded-sm bg-gray-800/50 overflow-hidden">
-          <img src={`https://${platform.apiEndpoint}/favicon.ico`} alt="" className="h-6 w-6 object-contain" />
+          {platform.website ? (
+            <img src={`https://${platform.website}/favicon.ico`} alt="" className="h-6 w-6 object-contain" />
+          ) : (
+            <span className="text-2xl text-gray-600">?</span>
+          )}
         </span>
         <div className="min-w-0">
           <h3 className="text-lg font-semibold text-white group-hover:text-brand-300 transition-colors duration-200 truncate">

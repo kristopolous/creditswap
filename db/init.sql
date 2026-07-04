@@ -24,8 +24,8 @@ CREATE TABLE IF NOT EXISTS platforms (
   name          VARCHAR(255) NOT NULL,
   slug          VARCHAR(255) UNIQUE NOT NULL,
   description   TEXT,
-  logo          VARCHAR(50) DEFAULT '🔮',
   api_endpoint  VARCHAR(512) NOT NULL,
+  website       VARCHAR(512),              -- main website (for favicon, docs, etc.)
   supported     BOOLEAN DEFAULT true,
   discoverable  BOOLEAN DEFAULT true,
   credits_per_call  NUMERIC(10,6),       -- default credits consumed per API call (NULL = unknown)
@@ -165,17 +165,17 @@ CREATE INDEX IF NOT EXISTS idx_escrow_releases_sell ON escrow_releases (sell_ord
 -- ════════════════════════════════════════════════════════════
 
 -- Platforms (10)
-INSERT INTO platforms (name, slug, description, logo, api_endpoint) VALUES
-  ('Cloudify',     'cloudify',    'Cloud compute and AI training credits.',          '☁️',  'api.cloudify.com'),
-  ('OpenAI',       'openai',      'GPT API credits for language models.',             '🤖',  'api.openai.com'),
-  ('Anthropic',    'anthropic',   'Claude API credits for safe AI assistants.',        '🧠',  'api.anthropic.com'),
-  ('Replicate',    'replicate',   'Run open-source models with API credits.',          '🔄',  'api.replicate.com'),
-  ('Hugging Face', 'huggingface', 'Inference API credits for community models.',        '🤗',  'api.huggingface.co'),
-  ('Together AI',  'together',    'API credits for open-source language models.',       '🔗',  'api.together.xyz'),
-  ('ElevenLabs',   'elevenlabs',  'AI voice synthesis and TTS API credits.',           '🎙️',  'api.elevenlabs.io'),
-  ('Midjourney',   'midjourney',  'AI image generation credits.',                      '🎨',  'api.midjourney.com'),
-  ('Stability AI', 'stability',   'Stable Diffusion and generative media API credits.', '✨',  'api.stability.ai'),
-  ('Perplexity',   'perplexity',  'AI search and research assistant API credits.',      '🔍',  'api.perplexity.ai');
+INSERT INTO platforms (name, slug, description, api_endpoint, website) VALUES
+  ('Cloudify',     'cloudify',    'Cloud compute and AI training credits.',          'api.cloudify.com',     'cloudify.ai'),
+  ('OpenAI',       'openai',      'GPT API credits for language models.',             'api.openai.com',       'openai.com'),
+  ('Anthropic',    'anthropic',   'Claude API credits for safe AI assistants.',        'api.anthropic.com',    'anthropic.com'),
+  ('Replicate',    'replicate',   'Run open-source models with API credits.',          'api.replicate.com',    'replicate.com'),
+  ('Hugging Face', 'huggingface', 'Inference API credits for community models.',        'api.huggingface.co',   'huggingface.co'),
+  ('Together AI',  'together',    'API credits for open-source language models.',       'api.together.xyz',     'together.ai'),
+  ('ElevenLabs',   'elevenlabs',  'AI voice synthesis and TTS API credits.',           'api.elevenlabs.io',    'elevenlabs.io'),
+  ('Midjourney',   'midjourney',  'AI image generation credits.',                      'api.midjourney.com',   'midjourney.com'),
+  ('Stability AI', 'stability',   'Stable Diffusion and generative media API credits.', 'api.stability.ai',     'stability.ai'),
+  ('Perplexity',   'perplexity',  'AI search and research assistant API credits.',      'api.perplexity.ai',    'perplexity.ai');
 
 -- Sell Orders (6) — reference platforms by slug subquery
 INSERT INTO sell_orders (platform_id, seller_key, total_credits, available_credits, price_per_credit, type, status)

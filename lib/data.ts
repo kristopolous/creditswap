@@ -6,7 +6,7 @@ import { Platform, SellOrder, BuyOrder, Deal, APIKey, UsageLog, UsageStats } fro
 
 export async function getPlatform(slug: string): Promise<Platform | null> {
   return queryOne<Platform>(
-    `SELECT id, name, slug, description, logo, api_endpoint AS "apiEndpoint",
+    `SELECT id, name, slug, description, website, api_endpoint AS "apiEndpoint",
             supported, discoverable, credits_per_call AS "creditsPerCall",
             cost_model AS "costModel", credits_per_hour AS "creditsPerHour", created_at
      FROM platforms WHERE slug = $1`,
@@ -16,7 +16,7 @@ export async function getPlatform(slug: string): Promise<Platform | null> {
 
 export async function getPlatforms(): Promise<Platform[]> {
   return query<Platform>(
-    `SELECT id, name, slug, description, logo, api_endpoint AS "apiEndpoint",
+    `SELECT id, name, slug, description, website, api_endpoint AS "apiEndpoint",
             supported, discoverable, credits_per_call AS "creditsPerCall",
             cost_model AS "costModel", credits_per_hour AS "creditsPerHour", created_at
      FROM platforms ORDER BY name`
@@ -28,7 +28,7 @@ export async function createPlatform(name: string, apiEndpoint: string, descript
   return queryOne<Platform>(
     `INSERT INTO platforms (name, slug, description, api_endpoint, credits_per_call)
      VALUES ($1, $2, $3, $4, $5)
-     RETURNING id, name, slug, description, logo, api_endpoint AS "apiEndpoint",
+     RETURNING id, name, slug, description, website, api_endpoint AS "apiEndpoint",
               supported, discoverable, credits_per_call AS "creditsPerCall", created_at`,
     [name, slug, description || `API credits for ${name}.`, apiEndpoint, creditsPerCall ?? null]
   ) as Promise<Platform>
@@ -225,7 +225,7 @@ export async function createBuyOrder(
   type: "market" | "limit"
 ): Promise<BuyOrder> {
   const totalPrice = amount * pricePerCredit
-  const feePercentage = 0.15
+  const feePercentage = 0.0495
   const fee = totalPrice * feePercentage
   const demandRate = Math.max(0.01, pricePerCredit * 0.1)
 

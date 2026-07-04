@@ -25,7 +25,11 @@ export default async function PlatformPage({ params: { slug } }: { params: { slu
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-5">
           <span className="flex h-16 w-16 items-center justify-center rounded bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700/50 shadow-lg overflow-hidden">
-            <img src={`https://www.google.com/s2/favicons?domain=${platform.apiEndpoint}&sz=64`} alt="" className="h-10 w-10 object-contain" />
+            {platform.website ? (
+              <img src={`https://${platform.website}/favicon.ico`} alt="" className="h-10 w-10 object-contain" />
+            ) : (
+              <span className="text-4xl text-gray-600">?</span>
+            )}
           </span>
           <div>
             <h1 className="text-3xl font-bold text-white">

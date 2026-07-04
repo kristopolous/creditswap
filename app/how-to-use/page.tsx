@@ -78,7 +78,7 @@ export default function HowToUsePage() {
           </div>
           <div className="rounded border border-gray-800/50 bg-gray-900/60 p-6 sm:p-8 space-y-4 text-sm text-gray-300 leading-relaxed">
             <p>
-              <strong className="text-gray-200">Transaction fee:</strong> A 15% fee is applied to all sales.
+               <strong className="text-gray-200">Transaction fee:</strong> A 4.95% fee is split 50/50 between maker and taker on every trade.
               This covers payment processing, proxy infrastructure, and dispute resolution.
             </p>
             <p>

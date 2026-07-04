@@ -38,7 +38,7 @@ export function BuySection({
   const numAmount = parseFloat(amount) || 0
   const effectivePrice = orderType === "market" ? minPrice : (parseFloat(limitPrice) || 0)
   const subtotal = numAmount * effectivePrice
-  const fee = subtotal * 0.15
+  const fee = subtotal * 0.0495
   const total = subtotal + fee
 
   const handleBuy = async (e: React.FormEvent) => {
@@ -94,7 +94,7 @@ export function BuySection({
           )}
           {result.fee !== undefined && (
             <div className="flex justify-between text-sm">
-              <span className="text-gray-400">Fee (15%)</span>
+              <span className="text-gray-400">Fee (4.95%)</span>
               <span className="font-semibold text-white">${result.fee.toFixed(2)}</span>
             </div>
           )}
@@ -214,7 +214,7 @@ export function BuySection({
             <span className="font-medium text-gray-200">${subtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between text-sm">
-            <span className="text-gray-400">Fee (15%)</span>
+            <span className="text-gray-400">Fee (4.95%)</span>
             <span className="font-medium text-gray-200">${fee.toFixed(2)}</span>
           </div>
           <div className="border-t border-gray-800 pt-1.5 flex justify-between">
@@ -232,7 +232,7 @@ export function BuySection({
         </button>
 
         <p className="text-center text-[11px] text-gray-600">
-          {orderType === "market" && "15% fee included. Pay with card or crypto."}
+          {orderType === "market" && "4.95% fee included (split 50/50 maker/taker)."}
           {orderType === "limit" && "No charge until your limit is matched."}
           {orderType === "stop" && "Triggers a market buy when stop price is reached."}
           {orderType === "stop_limit" && "Triggers a limit buy when stop price is reached."}

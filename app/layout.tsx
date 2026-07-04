@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <a href="/privacy" className="text-sm text-gray-500 transition-colors hover:text-gray-300">
                   Privacy Policy
                 </a>
-                <p className="text-sm text-gray-500">15% transaction fee on all sales.</p>
+                 <p className="text-sm text-gray-500">4.95% transaction fee split 50/50 between maker and taker.</p>
               </div>
               <p className="text-sm text-gray-600">&copy; 2026 creditswap.ai</p>
             </div>
