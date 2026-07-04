@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Platform } from "@/lib/types"
+import { Platform, OrderBookData } from "@/lib/types"
 import { useParams } from "next/navigation"
 
 const tabs: { key: "market" | "limit"; label: string }[] = [
@@ -39,9 +39,12 @@ function SellForm({ platform }: { platform: Platform }) {
   const [pricePerCredit, setPricePerCredit] = useState("")
   const [orderType, setOrderType] = useState<"market" | "limit">("market")
   const [expiresAt, setExpiresAt] = useState("")
+  const [orderBook, setOrderBook] = useState<OrderBookData | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState<{ id: string } | null>(null)
   const [error, setError] = useState("")
+
+  const bestBid = orderBook?.bids?.[0]?.price ?? 0
 
   const handleCheckCredits = async (e: React.FormEvent) => {
     e.preventDefault()

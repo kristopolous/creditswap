@@ -106,3 +106,18 @@ export interface KeyValidation {
   remainingCredits: number
   demandRate: number
 }
+
+export interface OrderBookEntry {
+  price: number
+  volume: number
+  type: "market" | "limit"
+  orderId: string
+}
+
+export interface OrderBookData {
+  service: string
+  spread: { bid: number; ask: number; spread: number } | null
+  asks: OrderBookEntry[]
+  bids: OrderBookEntry[]
+  depth: { price: number; buyVolume: number; sellVolume: number }[]
+}
