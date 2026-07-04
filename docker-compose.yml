@@ -21,16 +21,12 @@ services:
     restart: unless-stopped
 
   web:
-    build:
-      context: .
-      target: dev
+    build: .
     container_name: creditswap-web
     ports:
       - "3000:3000"
     volumes:
       - .:/app
-      - /app/node_modules
-      - /app/.next
     environment:
       PGHOST: postgres
       PGPORT: "5432"
