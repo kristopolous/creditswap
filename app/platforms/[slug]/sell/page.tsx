@@ -17,6 +17,11 @@ const platforms: Platform[] = [
   { id: "p10", name: "Perplexity", slug: "perplexity", description: "AI search credits.", logo: "🔍", apiEndpoint: "api.perplexity.ai", supported: true, discoverable: true, creditsPerCall: null },
 ]
 
+const tabs: { key: "market" | "limit"; label: string }[] = [
+  { key: "market", label: "Market" },
+  { key: "limit", label: "Limit" },
+]
+
 export default function SellPage() {
   const params = useParams()
   const slug = params.slug as string
@@ -96,9 +101,7 @@ function SellForm({ platform }: { platform: Platform }) {
       <div className="py-16">
         <div className="mx-auto max-w-lg px-4 text-center">
           <div className="rounded-2xl border border-brand-500/20 bg-gradient-to-br from-brand-500/10 to-brand-500/5 p-8">
-            <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-green-500/10 text-3xl">
-              🎉
-            </span>
+            <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-green-500/10 text-3xl">🎉</span>
             <h2 className="mt-5 text-xl font-bold text-white">Order Listed!</h2>
             <p className="mt-2 text-sm text-gray-400">
               Your {platform.name} credits are now live on the marketplace.
@@ -113,20 +116,26 @@ function SellForm({ platform }: { platform: Platform }) {
     )
   }
 
-  return (
-    <div className="py-12 sm:py-16">
-      <div className="mx-auto max-w-lg px-4">
-        <div className="mb-8">
-          <a href={`/platforms/${platform.slug}`} className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-300 transition-colors">
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-            Back to {platform.name}
-          </a>
-          <h1 className="mt-3 text-2xl font-bold text-white">
-            Sell {platform.logo} {platform.name} Credits
-          </h1>
-        </div>
+  const numAmount = parseFloat(sellAmount) || 0
+  const price = orderType === "limit" ? (parseFloat(pricePerCredit) || 0) : 0
+  const listingValue = numAmount * price
+  const fee = listingValue * 0.15
+  const youReceive = listingValue * 0.85
 
-        {!totalCredits ? (
+  if (!totalCredits) {
+    return (
+      <div className="py-12 sm:py-16">
+        <div className="mx-auto max-w-lg px-4">
+          <div className="mb-8">
+            <a href={`/platforms/${platform.slug}`} className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-300 transition-colors">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+              Back to {platform.name}
+            </a>
+            <h1 className="mt-3 text-2xl font-bold text-white">
+              Sell {platform.logo} {platform.name} Credits
+            </h1>
+          </div>
+
           <form onSubmit={handleCheckCredits} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6 space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-300">API Key</label>
@@ -146,15 +155,50 @@ function SellForm({ platform }: { platform: Platform }) {
               {checking ? "Checking Credits..." : "Verify & Check Credits"}
             </button>
           </form>
-        ) : (
-          <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6 space-y-5">
-            <div className="rounded-xl bg-gradient-to-br from-brand-500/10 to-brand-500/5 border border-brand-500/20 p-5 text-center">
-              <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">Available Credits</p>
-              <p className="mt-1 text-3xl font-bold text-brand-300">{totalCredits.toLocaleString()}</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="py-12 sm:py-16">
+      <div className="mx-auto max-w-lg px-4">
+        <div className="mb-8">
+          <a href={`/platforms/${platform.slug}`} className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-300 transition-colors">
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            Back to {platform.name}
+          </a>
+          <h1 className="mt-3 text-2xl font-bold text-white">
+            Sell {platform.logo} {platform.name} Credits
+          </h1>
+        </div>
+
+        <form onSubmit={handleSubmit} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
+          <div className="flex border-b border-gray-800/50">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => { setOrderType(tab.key); setPricePerCredit("") }}
+                className={`flex-1 px-3 py-2.5 text-xs font-semibold tracking-wide uppercase transition-colors ${
+                  orderType === tab.key
+                    ? "text-white bg-gray-800/50 border-b-2 border-red-500"
+                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/20"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="p-5 space-y-4">
+            <div className="rounded-lg bg-gradient-to-br from-brand-500/10 to-brand-500/5 border border-brand-500/20 px-4 py-3 text-center">
+              <p className="text-[11px] text-gray-400 font-medium uppercase tracking-wider">Available Credits</p>
+              <p className="text-2xl font-bold text-brand-300">{totalCredits.toLocaleString()}</p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300">Credits to Sell</label>
+              <label className="text-xs text-gray-500 font-medium uppercase tracking-wider">Credits to Sell</label>
               <input
                 type="number"
                 className="input-field mt-1.5"
@@ -167,45 +211,14 @@ function SellForm({ platform }: { platform: Platform }) {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300">Order Type</label>
-              <div className="mt-2 grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => { setOrderType("market"); setPricePerCredit("") }}
-                  className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                    orderType === "market"
-                      ? "border-brand-500/50 bg-brand-500/10 text-brand-300"
-                      : "border-gray-800 bg-gray-900/80 text-gray-400 hover:border-gray-700"
-                  }`}
-                >
-                  Market Price
-                  <span className="block text-xs font-normal mt-0.5 text-gray-500">Sells at highest bid</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setOrderType("limit")}
-                  className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                    orderType === "limit"
-                      ? "border-brand-500/50 bg-brand-500/10 text-brand-300"
-                      : "border-gray-800 bg-gray-900/80 text-gray-400 hover:border-gray-700"
-                  }`}
-                >
-                  Limit Order
-                  <span className="block text-xs font-normal mt-0.5 text-gray-500">Set your minimum price</span>
-                </button>
-              </div>
-            </div>
-
             {orderType === "limit" && (
               <div>
-                <label className="block text-sm font-medium text-gray-300">Limit Price (minimum per credit)</label>
-                <p className="text-xs text-gray-500 mt-0.5">Must be under $1.00</p>
+                <label className="text-xs text-gray-500 font-medium uppercase tracking-wider">Price per Credit</label>
                 <div className="relative mt-1.5">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs">$</span>
                   <input
                     type="number"
-                    className="input-field pl-8"
+                    className="input-field pl-7 text-sm"
                     placeholder="0.00"
                     step="0.01"
                     min="0.01"
@@ -218,25 +231,22 @@ function SellForm({ platform }: { platform: Platform }) {
                     required
                   />
                 </div>
-                {parseFloat(pricePerCredit) >= 1 && (
-                  <p className="text-xs text-red-400 mt-1">Price must be under $1.00</p>
+                {price >= 1 && (
+                  <p className="text-[11px] text-red-400 mt-1">Price must be under $1.00</p>
                 )}
               </div>
             )}
 
             {orderType === "market" && (
-              <div className="rounded-xl bg-gray-950/50 border border-gray-800/50 p-4">
+              <div className="rounded-lg bg-gray-950/50 border border-gray-800/50 px-4 py-3">
                 <p className="text-sm text-gray-400">
-                  Your credits will be listed at the <strong className="text-gray-200">market rate</strong> — the highest bid price available.
+                  Listed at the <strong className="text-gray-200">highest bid price</strong> — matched automatically.
                 </p>
               </div>
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-300">Expiration Date (optional)</label>
-              <p className="text-xs text-gray-500 mt-0.5">
-                If set, the order will automatically expire and no longer be available.
-              </p>
+              <label className="text-xs text-gray-500 font-medium uppercase tracking-wider">Expiration (optional)</label>
               <input
                 type="date"
                 className="input-field mt-1.5"
@@ -246,25 +256,19 @@ function SellForm({ platform }: { platform: Platform }) {
               />
             </div>
 
-            {sellAmount && (orderType === "market" || parseFloat(pricePerCredit) > 0) && (
-              <div className="rounded-xl bg-gray-950/50 border border-gray-800/50 p-4 space-y-1.5">
+            {(orderType === "limit" && numAmount > 0 && price > 0) && (
+              <div className="rounded-lg bg-gray-950/50 border border-gray-800/50 px-4 py-3 space-y-1.5">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Listing value</span>
-                  <span className="font-medium text-gray-200">
-                    ${(parseFloat(sellAmount) * (orderType === "market" ? 0 : parseFloat(pricePerCredit))).toFixed(2)}
-                  </span>
+                  <span className="font-medium text-gray-200">${listingValue.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Fee (15%)</span>
-                  <span className="font-medium text-gray-200">
-                    ${(parseFloat(sellAmount) * (orderType === "market" ? 0 : parseFloat(pricePerCredit)) * 0.15).toFixed(2)}
-                  </span>
+                  <span className="font-medium text-gray-200">${fee.toFixed(2)}</span>
                 </div>
                 <div className="border-t border-gray-800 pt-1.5 flex justify-between text-sm">
                   <span className="font-semibold text-gray-200">You receive</span>
-                  <span className="font-bold text-brand-300">
-                    ${(parseFloat(sellAmount) * (orderType === "market" ? 0 : parseFloat(pricePerCredit)) * 0.85).toFixed(2)}
-                  </span>
+                  <span className="font-bold text-brand-300">${youReceive.toFixed(2)}</span>
                 </div>
               </div>
             )}
@@ -273,13 +277,18 @@ function SellForm({ platform }: { platform: Platform }) {
 
             <button
               type="submit"
-              className="btn-order-sell w-full"
-              disabled={submitting || (orderType === "limit" && (parseFloat(pricePerCredit) || 0) >= 1)}
+              className="btn-order-sell w-full py-3 text-sm font-semibold"
+              disabled={submitting || (orderType === "limit" && (price <= 0 || price >= 1))}
             >
-              {submitting ? "Listing..." : `List ${orderType === "market" ? "at Market Rate" : "Limit Order"}`}
+              {submitting ? "Listing..." : `Sell ${numAmount || ""} Credits`.trim()}
             </button>
-          </form>
-        )}
+
+            <p className="text-center text-[11px] text-gray-600">
+              {orderType === "market" && "15% fee deducted from sale proceeds."}
+              {orderType === "limit" && "15% fee deducted only when matched."}
+            </p>
+          </div>
+        </form>
       </div>
     </div>
   )
