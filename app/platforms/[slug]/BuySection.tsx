@@ -3,6 +3,15 @@
 import { useState } from "react"
 import { Platform, Deal } from "@/lib/types"
 
+type OrderType = "market" | "limit" | "stop" | "stop_limit"
+
+const tabs: { key: OrderType; label: string }[] = [
+  { key: "market", label: "Market" },
+  { key: "limit", label: "Limit" },
+  { key: "stop", label: "Stop" },
+  { key: "stop_limit", label: "Stop Limit" },
+]
+
 export function BuySection({
   platform,
   deal,
@@ -12,9 +21,10 @@ export function BuySection({
   deal: Deal
   minPrice: number
 }) {
+  const [orderType, setOrderType] = useState<OrderType>("market")
   const [amount, setAmount] = useState("100")
-  const [orderType, setOrderType] = useState<"market" | "limit">("market")
   const [limitPrice, setLimitPrice] = useState("")
+  const [stopPrice, setStopPrice] = useState("")
   const [purchasing, setPurchasing] = useState(false)
   const [result, setResult] = useState<{
     proxyKey?: string
@@ -26,14 +36,15 @@ export function BuySection({
   } | null>(null)
 
   const numAmount = parseFloat(amount) || 0
-  const price = orderType === "market" ? minPrice : (parseFloat(limitPrice) || 0)
-  const subtotal = numAmount * price
+  const effectivePrice = orderType === "market" ? minPrice : (parseFloat(limitPrice) || 0)
+  const subtotal = numAmount * effectivePrice
   const fee = subtotal * 0.15
   const total = subtotal + fee
 
   const handleBuy = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (numAmount <= 0 || (orderType === "limit" && (price <= 0 || price >= 1))) return
+    if (numAmount <= 0) return
+    if ((orderType === "limit" || orderType === "stop_limit") && (effectivePrice <= 0 || effectivePrice >= 1)) return
     setPurchasing(true)
 
     const res = await fetch(`/api/orders`, {
@@ -44,8 +55,8 @@ export function BuySection({
         platformId: platform.id,
         platformName: platform.name,
         amount: numAmount,
-        pricePerCredit: price,
-        type: orderType,
+        pricePerCredit: effectivePrice,
+        type: orderType === "limit" || orderType === "stop_limit" ? "limit" : "market",
       }),
     })
 
@@ -56,7 +67,7 @@ export function BuySection({
 
   if (result) {
     return (
-      <div className="mt-4 rounded-2xl border border-brand-500/20 bg-gradient-to-br from-brand-500/10 to-brand-500/5 p-6">
+      <div className="rounded-2xl border border-brand-500/20 bg-gradient-to-br from-brand-500/10 to-brand-500/5 p-6">
         <div className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-500/10 text-lg">
             {result.status === "pending" ? "⏳" : "✅"}
@@ -101,112 +112,132 @@ export function BuySection({
   }
 
   return (
-    <form onSubmit={handleBuy} className="mt-4 rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl p-6">
-      <div className="mb-5">
-        <label className="block text-sm font-medium text-gray-300">Order Type</label>
-        <div className="mt-2 grid grid-cols-2 gap-3">
+    <form onSubmit={handleBuy} className="rounded-2xl border border-gray-800/50 bg-gray-900/60 backdrop-blur-xl overflow-hidden">
+      <div className="flex border-b border-gray-800/50">
+        {tabs.map((tab) => (
           <button
+            key={tab.key}
             type="button"
-            onClick={() => setOrderType("market")}
-            className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 ${
-              orderType === "market"
-                ? "border-brand-500/50 bg-brand-500/10 text-brand-300"
-                : "border-gray-800 bg-gray-900/80 text-gray-400 hover:border-gray-700 hover:text-gray-300"
+            onClick={() => setOrderType(tab.key)}
+            className={`flex-1 px-3 py-2.5 text-xs font-semibold tracking-wide uppercase transition-colors ${
+              orderType === tab.key
+                ? "text-white bg-gray-800/50 border-b-2 border-brand-500"
+                : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/20"
             }`}
           >
-            Market Buy
-            <span className="block text-xs font-normal mt-0.5 text-gray-500">Buy at best rate</span>
+            {tab.label}
           </button>
-          <button
-            type="button"
-            onClick={() => setOrderType("limit")}
-            className={`rounded-xl border px-4 py-3 text-sm font-medium transition-all duration-200 ${
-              orderType === "limit"
-                ? "border-brand-500/50 bg-brand-500/10 text-brand-300"
-                : "border-gray-800 bg-gray-900/80 text-gray-400 hover:border-gray-700 hover:text-gray-300"
-            }`}
-          >
-            Limit Order
-            <span className="block text-xs font-normal mt-0.5 text-gray-500">Set your max price</span>
-          </button>
+        ))}
+      </div>
+
+      <div className="p-5 space-y-4">
+        <div>
+          <label className="text-xs text-gray-500 font-medium uppercase tracking-wider">Credits</label>
+          <input
+            type="number"
+            className="input-field mt-1.5"
+            placeholder="100"
+            min="1"
+            max={orderType === "market" ? deal.availableCredits : undefined}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            required
+          />
+          <p className="text-[11px] text-gray-600 mt-1">
+            Available: {deal.availableCredits.toLocaleString()} credits
+          </p>
         </div>
-      </div>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-300">Amount of Credits</label>
-        <p className="text-xs text-gray-500 mt-0.5">
-          {orderType === "market"
-            ? `Available: ${deal.availableCredits.toLocaleString()} credits from $${minPrice.toFixed(2)}`
-            : "Set the amount you want to buy"}
-        </p>
-        <input
-          type="number"
-          className="input-field mt-2"
-          placeholder="100"
-          min="1"
-          max={orderType === "market" ? deal.availableCredits : undefined}
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          required
-        />
-      </div>
-
-      {orderType === "limit" && (
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-300">Max Price per Credit</label>
-          <p className="text-xs text-gray-500 mt-0.5">Must be under $1.00</p>
-          <div className="relative mt-2">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
-            <input
-              type="number"
-              className="input-field pl-8"
-              placeholder="0.00"
-              step="0.01"
-              min="0.01"
-              max="0.99"
-              value={limitPrice}
-              onChange={(e) => {
-                const v = e.target.value
-                if (parseFloat(v) < 1 || v === "") setLimitPrice(v)
-              }}
-              required
-            />
+        {(orderType === "limit" || orderType === "stop_limit") && (
+          <div>
+            <label className="text-xs text-gray-500 font-medium uppercase tracking-wider">
+              {orderType === "stop_limit" ? "Limit Price" : "Price"}
+            </label>
+            <div className="relative mt-1.5">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs">$</span>
+              <input
+                type="number"
+                className="input-field pl-7 text-sm"
+                placeholder="0.00"
+                step="0.01"
+                min="0.01"
+                max="0.99"
+                value={limitPrice}
+                onChange={(e) => {
+                  const v = e.target.value
+                  if (parseFloat(v) < 1 || v === "") setLimitPrice(v)
+                }}
+                required
+              />
+            </div>
+            {effectivePrice >= 1 && (
+              <p className="text-[11px] text-red-400 mt-1">Price must be under $1.00</p>
+            )}
           </div>
-          {price >= 1 && (
-            <p className="text-xs text-red-400 mt-1">Price must be under $1.00</p>
-          )}
-        </div>
-      )}
+        )}
 
-      <div className="rounded-xl bg-gray-950/50 border border-gray-800/50 p-4 space-y-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-400">Subtotal</span>
-          <span className="font-medium text-gray-200">${subtotal.toFixed(2)}</span>
+        {(orderType === "stop" || orderType === "stop_limit") && (
+          <div>
+            <label className="text-xs text-gray-500 font-medium uppercase tracking-wider">Stop Price</label>
+            <div className="relative mt-1.5">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs">$</span>
+              <input
+                type="number"
+                className="input-field pl-7 text-sm"
+                placeholder="0.00"
+                step="0.01"
+                min="0.01"
+                max="0.99"
+                value={stopPrice}
+                onChange={(e) => {
+                  const v = e.target.value
+                  if (parseFloat(v) < 1 || v === "") setStopPrice(v)
+                }}
+                required
+              />
+            </div>
+          </div>
+        )}
+
+        {orderType === "market" && (
+          <div className="rounded-lg bg-gray-950/50 border border-gray-800/50 px-4 py-3">
+            <div className="flex justify-between text-sm">
+              <span className="text-gray-400">Est. price</span>
+              <span className="font-medium text-gray-200">${minPrice.toFixed(2)}</span>
+            </div>
+          </div>
+        )}
+
+        <div className="rounded-lg bg-gray-950/50 border border-gray-800/50 px-4 py-3 space-y-1.5">
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-400">Subtotal</span>
+            <span className="font-medium text-gray-200">${subtotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-gray-400">Fee (15%)</span>
+            <span className="font-medium text-gray-200">${fee.toFixed(2)}</span>
+          </div>
+          <div className="border-t border-gray-800 pt-1.5 flex justify-between">
+            <span className="font-semibold text-gray-200">Total</span>
+            <span className="font-bold text-white">${total.toFixed(2)}</span>
+          </div>
         </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-gray-400">Fee (15%)</span>
-          <span className="font-medium text-gray-200">${fee.toFixed(2)}</span>
-        </div>
-        <div className="border-t border-gray-800 pt-2 flex justify-between">
-          <span className="font-semibold text-gray-200">Total</span>
-          <span className="font-bold text-white">${total.toFixed(2)}</span>
-        </div>
+
+        <button
+          type="submit"
+          className="btn-order-buy w-full py-3 text-sm font-semibold"
+          disabled={purchasing || numAmount <= 0 || ((orderType === "limit" || orderType === "stop_limit") && (effectivePrice <= 0 || effectivePrice >= 1))}
+        >
+          {purchasing ? "Processing..." : `Buy ${numAmount || ""} Credits`.trim()}
+        </button>
+
+        <p className="text-center text-[11px] text-gray-600">
+          {orderType === "market" && "15% fee included. Pay with card or crypto."}
+          {orderType === "limit" && "No charge until your limit is matched."}
+          {orderType === "stop" && "Triggers a market buy when stop price is reached."}
+          {orderType === "stop_limit" && "Triggers a limit buy when stop price is reached."}
+        </p>
       </div>
-
-      <button
-        type="submit"
-        className="btn-primary mt-5 w-full"
-        disabled={purchasing || numAmount <= 0 || (orderType === "limit" && (price <= 0 || price >= 1))}
-      >
-        {purchasing
-          ? "Processing..."
-          : orderType === "market"
-            ? "Pay with Link (ACH)"
-            : "Place Limit Order"}
-      </button>
-      <p className="mt-2 text-center text-xs text-gray-600">
-        {orderType === "market" ? "Secure payment via Stripe Link — ACH bank transfer" : "No charge until matched"}
-      </p>
     </form>
   )
 }
