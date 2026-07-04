@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto"
 import { query, queryOne } from "./db"
 import { Platform, SellOrder, BuyOrder, Deal, APIKey, UsageLog, UsageStats } from "./types"
 
@@ -198,6 +199,24 @@ export async function getBuyOrders(platformId: string): Promise<BuyOrder[]> {
   )
 }
 
+function generateSecret(): string {
+  return randomBytes(8).toString("hex")
+}
+
+function toMicropennies(price: number): number {
+  return Math.round(price * 100000)
+}
+
+export function parseProxyKey(key: string): { secret: string; slug: string; micropennies: number } | null {
+  const parts = key.split("-")
+  if (parts.length < 3) return null
+  const micropennies = parseInt(parts[parts.length - 1], 10)
+  if (isNaN(micropennies)) return null
+  const slug = parts[parts.length - 2]
+  const secret = parts.slice(0, -2).join("-")
+  return { secret, slug, micropennies }
+}
+
 export async function createBuyOrder(
   platformId: string,
   platformName: string,
@@ -218,7 +237,9 @@ export async function createBuyOrder(
   if (type === "market") {
     await consumeFromSellOrders(platformId, amount)
 
-    const keyStr = `csw_${slug}_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 8)}`
+    const secret = generateSecret()
+    const micropennies = toMicropennies(pricePerCredit)
+    const keyStr = `${secret}-${slug}-${String(micropennies).padStart(5, "0")}`
 
     const key = await queryOne<{ id: string }>(
       `INSERT INTO api_keys (key, user_id, platform_id, demand_rate, remaining_credits, total_credits)

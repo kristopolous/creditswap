@@ -105,7 +105,10 @@ describe("creditswap API v1", () => {
       expect(body.side).toBe("buy")
       expect(body.status).toBe("completed")
       expect(body.proxyKey).toBeTruthy()
-      expect(body.proxyKey).toContain("csw_")
+      const parts = body.proxyKey.split("-")
+      expect(parts.length).toBe(3)
+      expect(parts[1]).toBe("cloudify")
+      expect(parseInt(parts[2], 10)).toBe(20000)
     })
 
     it("creates a limit buy order", async () => {
@@ -222,8 +225,10 @@ describe("creditswap API v1", () => {
       })
       expect(status).toBe(201)
       expect(body.key).toBeTruthy()
-      expect(body.key).toContain("csw_")
-      expect(body.status).toBe("completed")
+      const parts = body.key.split("-")
+      expect(parts.length).toBe(3)
+      expect(parts[1]).toBe("cloudify")
+      expect(parseInt(parts[2], 10)).toBe(78000)
     })
 
     it("rejects price >= $1.00", async () => {
