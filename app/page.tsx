@@ -20,7 +20,7 @@ export default async function Home() {
             </div>
             <h1 className="heading-display text-white">
               Trade{" "}
-              <span className="gradient-text-glow">AI Credits</span>
+               <span className="gradient-text-glow">API Credits</span>
               <br />
               on the Open Market
             </h1>
@@ -47,7 +47,7 @@ export default async function Home() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
             <div className="flex items-end justify-between">
               <div>
-                <h2 className="section-title">Featured Deals</h2>
+                <h2 className="section-title">Trending Markets</h2>
                 <p className="section-subtitle">Best rates available right now on the marketplace.</p>
               </div>
               <a href="/buy" className="btn-ghost hidden sm:inline-flex">

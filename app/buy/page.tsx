@@ -37,14 +37,14 @@ export default async function BuyPage() {
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-amber-500/10 text-lg">📊</span>
                 <div>
-                  <h3 className="font-semibold text-white">Limit Orders</h3>
+                  <h3 className="font-semibold text-white">Set Your Own Price</h3>
                   <p className="text-sm text-gray-400">
-                    Don&apos;t see the rate you want? Place a limit order and we&apos;ll match you when the market hits your price.
+                    Don&apos;t see the rate you want? Place a limit order as a buyer or seller and we&apos;ll match you when the market hits your price.
                   </p>
                 </div>
               </div>
               <a href="/platforms" className="btn-secondary mt-4 inline-block">
-                Place Limit Order
+                Browse All Platforms
               </a>
             </div>
           </>

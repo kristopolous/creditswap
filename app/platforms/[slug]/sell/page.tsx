@@ -25,20 +25,13 @@ export default function SellPage() {
       .catch(() => setLoading(false))
   }, [slug])
 
-  useEffect(() => {
-    fetch(`/api/v1/orderbook/${slug}`)
-      .then((r) => r.json())
-      .then(setOrderBook)
-      .catch(() => {})
-  }, [slug])
-
   if (loading) return <div className="py-16 text-center text-gray-500">Loading...</div>
   if (!platform) return <div className="py-16 text-center text-gray-500">Platform not found.</div>
 
-  return <SellForm platform={platform} />
+  return <SellForm platform={platform} slug={slug} />
 }
 
-function SellForm({ platform }: { platform: Platform }) {
+function SellForm({ platform, slug }: { platform: Platform; slug: string }) {
   const [apiKey, setApiKey] = useState("")
   const [totalCredits, setTotalCredits] = useState<number | null>(null)
   const [checking, setChecking] = useState(false)
@@ -52,6 +45,16 @@ function SellForm({ platform }: { platform: Platform }) {
   const [error, setError] = useState("")
 
   const bestBid = orderBook?.bids?.[0]?.price ?? 0
+
+  useEffect(() => {
+    fetch(`/api/v1/orderbook/${slug}`)
+      .then((r) => r.json())
+      .then((data) => {
+        setOrderBook(data)
+        if (!data.bids?.length) setOrderType("limit")
+      })
+      .catch(() => {})
+  }, [slug])
 
   const handleCheckCredits = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -178,27 +181,33 @@ function SellForm({ platform }: { platform: Platform }) {
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             Back to {platform.name}
           </a>
-          <h1 className="mt-3 text-2xl font-bold text-white">
-            Sell {platform.logo} {platform.name} Credits
-          </h1>
+            <h1 className="mt-3 text-2xl font-bold text-white">
+              Sell {platform.name} Credits
+            </h1>
         </div>
 
         <form onSubmit={handleSubmit} className="rounded border border-gray-800/50 bg-gray-900/60 overflow-hidden">
           <div className="flex border-b border-gray-800/50">
-            {tabs.map((tab) => (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => { setOrderType(tab.key); setPricePerCredit("") }}
-                className={`flex-1 px-3 py-2.5 text-xs font-semibold tracking-wide uppercase transition-colors ${
-                  orderType === tab.key
-                    ? "text-white bg-gray-800/50 border-b-2 border-red-500"
-                    : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/20"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
+              {tabs.map((tab) => {
+                const disabled = tab.key === "market" && bestBid === 0
+                return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  disabled={disabled}
+                  onClick={() => { setOrderType(tab.key); setPricePerCredit("") }}
+                  className={`flex-1 px-3 py-2.5 text-xs font-semibold tracking-wide uppercase transition-colors ${
+                    orderType === tab.key
+                      ? "text-white bg-gray-800/50 border-b-2 border-red-500"
+                      : disabled
+                        ? "text-gray-700 cursor-not-allowed"
+                        : "text-gray-500 hover:text-gray-300 hover:bg-gray-800/20"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+                )
+              })}
           </div>
 
           <div className="p-5 space-y-4">
@@ -252,17 +261,11 @@ function SellForm({ platform }: { platform: Platform }) {
                 <p className="text-sm text-gray-400">
                   Listed at the <strong className="text-gray-200">highest bid price</strong> — matched automatically.
                 </p>
-                {bestBid > 0 && numAmount > 0 && (
-                  <>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Best bid</span>
-                      <span className="font-medium text-gray-200">${bestBid.toFixed(4)} / credit</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-gray-400">Estimated value</span>
-                      <span className="font-medium text-gray-200">${(numAmount * bestBid).toFixed(2)}</span>
-                    </div>
-                  </>
+                {bestBid > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Best bid</span>
+                    <span className="font-medium text-gray-200">${bestBid.toFixed(4)} / credit</span>
+                  </div>
                 )}
                 {bestBid === 0 && numAmount > 0 && (
                   <p className="text-xs text-yellow-500">No active buy orders — market may not fill immediately.</p>
@@ -294,6 +297,23 @@ function SellForm({ platform }: { platform: Platform }) {
                 <div className="border-t border-gray-800 pt-1.5 flex justify-between text-sm">
                   <span className="font-semibold text-gray-200">You receive</span>
                   <span className="font-bold text-brand-300">${youReceive.toFixed(2)}</span>
+                </div>
+              </div>
+            )}
+
+            {orderType === "market" && numAmount > 0 && bestBid > 0 && (
+              <div className="rounded-sm bg-gray-950/50 border border-gray-800/50 px-4 py-3 space-y-1.5">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Estimated value</span>
+                  <span className="font-medium text-gray-200">${(numAmount * bestBid).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Fee (15%)</span>
+                  <span className="font-medium text-gray-200">${(numAmount * bestBid * 0.15).toFixed(2)}</span>
+                </div>
+                <div className="border-t border-gray-800 pt-1.5 flex justify-between text-sm">
+                  <span className="font-semibold text-gray-200">You receive</span>
+                  <span className="font-bold text-brand-300">${(numAmount * bestBid * 0.85).toFixed(2)}</span>
                 </div>
               </div>
             )}
