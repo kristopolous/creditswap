@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
@@ -12,36 +13,145 @@ import (
 	"os/signal"
 	"strings"
 	"syscall"
+	"time"
 )
+
+type authStartResponse struct {
+	Code           string `json:"code"`
+	VerificationUrl string `json:"verificationUrl"`
+	ExpiresIn      int    `json:"expiresIn"`
+}
+
+type authStatusResponse struct {
+	Status       string `json:"status"`
+	ProxyKey     string `json:"proxyKey"`
+	PlatformSlug string `json:"platformSlug"`
+	TargetHost   string `json:"targetHost"`
+}
 
 func main() {
 	port := flag.Int("port", 8080, "local port to listen on")
 	target := flag.String("target", "", "original API host (e.g. api.cloudify.com)")
 	proxyKey := flag.String("proxy-key", "", "creditswap proxy key")
 	platform := flag.String("platform", "", "platform slug (e.g. cloudify)")
+	authMode := flag.Bool("auth", false, "authenticate via browser instead of providing --proxy-key")
+	server := flag.String("server", "https://creditswap.ai", "creditswap server URL")
 	flag.Parse()
+
+	if *authMode {
+		runAuthFlow(*port, *server)
+		return
+	}
 
 	if *target == "" || *proxyKey == "" || *platform == "" {
 		fmt.Fprintln(os.Stderr, "Usage: creditswap-proxy --target <api-host> --proxy-key <key> --platform <slug>")
+		fmt.Fprintln(os.Stderr, "       creditswap-proxy --auth")
+		fmt.Fprintln(os.Stderr, "")
 		fmt.Fprintln(os.Stderr, "  --target     Original API host to intercept (e.g. api.cloudify.com)")
 		fmt.Fprintln(os.Stderr, "  --proxy-key  Your creditswap.ai proxy key")
 		fmt.Fprintln(os.Stderr, "  --platform   Platform slug (e.g. cloudify)")
 		fmt.Fprintln(os.Stderr, "  --port       Local port (default 8080)")
+		fmt.Fprintln(os.Stderr, "  --auth       Authenticate via browser instead of flags")
+		fmt.Fprintln(os.Stderr, "  --server     Creditswap server URL (default https://creditswap.ai)")
 		os.Exit(1)
 	}
 
+	startProxy(*port, *target, *proxyKey, *platform, *server)
+}
+
+func runAuthFlow(port int, serverURL string) {
+	fmt.Println("creditswap proxy — browser authentication")
+	fmt.Println("")
+
+	client := &http.Client{Timeout: 10 * time.Second}
+
+	// Step 1: request a device code
+	resp, err := client.Post(serverURL+"/api/v1/proxy/auth/start", "application/json", nil)
+	if err != nil {
+		log.Fatalf("Failed to contact server: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		body, _ := io.ReadAll(resp.Body)
+		log.Fatalf("Server returned %d: %s", resp.StatusCode, string(body))
+	}
+
+	var authResp authStartResponse
+	if err := json.NewDecoder(resp.Body).Decode(&authResp); err != nil {
+		log.Fatalf("Failed to decode server response: %v", err)
+	}
+
+	// Step 2: print the verification URL
+	fmt.Println("┌─────────────────────────────────────────────────────┐")
+	fmt.Println("│  Open this URL in your browser to authenticate:     │")
+	fmt.Println("│                                                     │")
+	fmt.Printf("│  %-51s │\n", authResp.VerificationUrl)
+	fmt.Println("│                                                     │")
+	fmt.Printf("│  Session code: %-38s │\n", authResp.Code)
+	fmt.Println("│                                                     │")
+	fmt.Println("│  The link expires in 10 minutes.                    │")
+	fmt.Println("└─────────────────────────────────────────────────────┘")
+	fmt.Println("")
+	fmt.Print("Waiting for authentication")
+
+	// Step 3: poll for status every 3 seconds
+	statusURL := serverURL + "/api/v1/proxy/auth/status?code=" + url.QueryEscape(authResp.Code)
+	ticker := time.NewTicker(3 * time.Second)
+	defer ticker.Stop()
+
+	timeout := time.After(10 * time.Minute)
+
+	for {
+		select {
+		case <-ticker.C:
+			fmt.Print(".")
+			resp, err := client.Get(statusURL)
+			if err != nil {
+				continue
+			}
+			var statusResp authStatusResponse
+			if err := json.NewDecoder(resp.Body).Decode(&statusResp); err != nil {
+				resp.Body.Close()
+				continue
+			}
+			resp.Body.Close()
+
+			if statusResp.Status == "active" {
+				fmt.Println("")
+				fmt.Println("")
+				fmt.Println("✓ Authenticated!")
+				fmt.Println("")
+				fmt.Printf("  Platform:     %s\n", statusResp.PlatformSlug)
+				fmt.Printf("  Target:       %s\n", statusResp.TargetHost)
+				fmt.Printf("  Proxy key:    %s\n", statusResp.ProxyKey)
+				fmt.Println("")
+				startProxy(port, statusResp.TargetHost, statusResp.ProxyKey, statusResp.PlatformSlug, serverURL)
+				return
+			}
+
+		case <-timeout:
+			fmt.Println("")
+			log.Fatalf("Authentication timed out after 10 minutes")
+		}
+	}
+}
+
+func startProxy(port int, targetHost, proxyKey, platform, serverURL string) {
+	upstream := fmt.Sprintf("%s/%s", strings.TrimRight(serverURL, "/"), strings.TrimLeft(platform, "/"))
+
 	proxy := &creditswapProxy{
-		targetHost:  *target,
-		proxyKey:    *proxyKey,
-		platform:    *platform,
-		upstream:    fmt.Sprintf("https://creditswap.ai/%s", strings.TrimLeft(*platform, "/")),
+		targetHost: targetHost,
+		proxyKey:   proxyKey,
+		platform:   platform,
+		upstream:   upstream,
 	}
 
 	handler := http.HandlerFunc(proxy.serve)
 
-	ln, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", *port))
+	ln, err := net.Listen("tcp", fmt.Sprintf("127.0.0.1:%d", port))
 	if err != nil {
-		log.Fatalf("Failed to listen on port %d: %v", *port, err)
+		log.Fatalf("Failed to listen on port %d: %v", port, err)
 	}
 
 	server := &http.Server{Handler: handler}
@@ -55,9 +165,9 @@ func main() {
 		server.Close()
 	}()
 
-	fmt.Printf("creditswap proxy running on 127.0.0.1:%d\n", *port)
-	fmt.Printf("  Intercepting: %s -> creditswap.ai/%s\n", *target, *platform)
-	fmt.Printf("  Point your DNS or SDK to 127.0.0.1:%d\n", *port)
+	fmt.Printf("creditswap proxy running on 127.0.0.1:%d\n", port)
+	fmt.Printf("  Intercepting: %s -> %s/%s\n", targetHost, serverURL, platform)
+	fmt.Printf("  Point your DNS or SDK to 127.0.0.1:%d\n", port)
 	fmt.Println("  Press Ctrl+C to stop.")
 
 	if err := server.Serve(ln); err != nil && err != http.ErrServerClosed {

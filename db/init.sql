@@ -142,6 +142,29 @@ CREATE INDEX IF NOT EXISTS idx_usage_log_buy     ON usage_log (buy_order_id);
 CREATE INDEX IF NOT EXISTS idx_usage_log_platform ON usage_log (platform_id);
 CREATE INDEX IF NOT EXISTS idx_usage_log_created  ON usage_log (created_at);
 
+-- ── Proxy Auth Sessions ────────────────────────────────────
+-- Device-authorization flow for the Go proxy CLI.
+-- When a user runs `creditswap-proxy --auth`, a session is created
+-- with a short-lived code. User opens the verification URL in a
+-- browser, logs in, and authorizes the session. The proxy polls
+-- until the session becomes active and receives its proxy config.
+
+CREATE TABLE IF NOT EXISTS proxy_auth_sessions (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  code          VARCHAR(64) UNIQUE NOT NULL,
+  status        VARCHAR(20) NOT NULL DEFAULT 'pending',
+  user_id       UUID REFERENCES users(id),
+  proxy_key     VARCHAR(512),
+  platform_slug VARCHAR(255),
+  target_host   VARCHAR(512),
+  created_at    TIMESTAMPTZ DEFAULT now(),
+  expires_at    TIMESTAMPTZ NOT NULL,
+  claimed_at    TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_proxy_auth_code   ON proxy_auth_sessions (code);
+CREATE INDEX IF NOT EXISTS idx_proxy_auth_status ON proxy_auth_sessions (status);
+
 -- ── Escrow Releases ─────────────────────────────────────────
 -- Tracks when funds are released to sellers as credits are consumed.
 

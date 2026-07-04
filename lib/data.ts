@@ -447,6 +447,80 @@ export async function getUsageStatsForBuyOrder(buyOrderId: string): Promise<Usag
   }
 }
 
+// ── Proxy Auth Sessions ────────────────────────────────────
+
+export async function createProxyAuthSession(): Promise<{ code: string; verificationUrl: string; expiresIn: number }> {
+  const { randomBytes, createHash } = await import("crypto")
+  const raw = randomBytes(16)
+  const code = createHash("sha256").update(raw).update(String(Date.now())).digest("hex").slice(0, 16)
+
+  const rows = await query<{ code: string }>(
+    `INSERT INTO proxy_auth_sessions (code, expires_at)
+     VALUES ($1, NOW() + INTERVAL '10 minutes')
+     RETURNING code`,
+    [code]
+  )
+  if (!rows[0]) throw new Error("failed to create auth session")
+
+  return {
+    code,
+    verificationUrl: `${process.env.NEXTAUTH_URL || "https://creditswap.ai"}/proxy/auth?code=${code}`,
+    expiresIn: 600,
+  }
+}
+
+export async function getProxyAuthSession(code: string): Promise<{
+  status: string
+  proxyKey: string | null
+  platformSlug: string | null
+  targetHost: string | null
+} | null> {
+  const rows = await query<any>(
+    `SELECT status,
+            proxy_key    AS "proxyKey",
+            platform_slug AS "platformSlug",
+            target_host   AS "targetHost"
+     FROM proxy_auth_sessions
+     WHERE code = $1 AND expires_at > NOW()`,
+    [code]
+  )
+  if (!rows[0]) return null
+
+  const row = rows[0]
+  return {
+    status: row.status,
+    proxyKey: row.proxyKey ?? null,
+    platformSlug: row.platformSlug ?? null,
+    targetHost: row.targetHost ?? null,
+  }
+}
+
+export async function claimProxyAuthSession(code: string, userId: string): Promise<boolean> {
+  // After claim, gather the user's first active API key + platform info
+  const key = await queryOne<any>(
+    `SELECT ak.key, ak.platform_id, p.slug AS platform_slug, p.api_endpoint
+     FROM api_keys ak
+     JOIN platforms p ON p.id = ak.platform_id
+     WHERE ak.user_id = $1 AND ak.status = 'active'
+     ORDER BY ak.created_at DESC
+     LIMIT 1`,
+    [userId]
+  )
+
+  const r = await query(
+    `UPDATE proxy_auth_sessions
+     SET status = 'active',
+         user_id = $1,
+         proxy_key = $2,
+         platform_slug = $3,
+         target_host = $4,
+         claimed_at = NOW()
+     WHERE code = $5 AND status = 'pending' AND expires_at > NOW()`,
+    [userId, key?.key ?? null, key?.platform_slug ?? null, key?.api_endpoint ?? null, code]
+  )
+  return r.rowCount != null && r.rowCount > 0
+}
+
 // ── Order Book ─────────────────────────────────────────────
 
 export interface DepthLevel {
