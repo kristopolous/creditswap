@@ -10,7 +10,7 @@ export default function HowToBuyPage() {
         <div className="mt-10 space-y-10">
           <section>
             <div className="flex items-center gap-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg font-bold text-brand-400">1</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg font-bold text-brand-400 tabular-nums">1</span>
               <div>
                 <h2 className="text-lg font-semibold text-white">Find a deal</h2>
                 <p className="text-sm text-gray-400">
@@ -23,7 +23,7 @@ export default function HowToBuyPage() {
 
           <section>
             <div className="flex items-center gap-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg font-bold text-brand-400">2</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg font-bold text-brand-400 tabular-nums">2</span>
               <div>
                 <h2 className="text-lg font-semibold text-white">Buy credits</h2>
                 <p className="text-sm text-gray-400">
@@ -37,7 +37,7 @@ export default function HowToBuyPage() {
 
           <section>
             <div className="flex items-center gap-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg font-bold text-brand-400">3</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg font-bold text-brand-400 tabular-nums">3</span>
               <div>
                 <h2 className="text-lg font-semibold text-white">Download &amp; run the proxy</h2>
                 <p className="text-sm text-gray-400">
@@ -61,7 +61,7 @@ export default function HowToBuyPage() {
 
           <section>
             <div className="flex items-center gap-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg font-bold text-brand-400">4</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg font-bold text-brand-400 tabular-nums">4</span>
               <div>
                 <h2 className="text-lg font-semibold text-white">Point your SDK to the proxy</h2>
                 <p className="text-sm text-gray-400">
@@ -94,7 +94,7 @@ export default function HowToBuyPage() {
 
           <section>
             <div className="flex items-center gap-4">
-              <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg font-bold text-brand-400">5</span>
+              <span className="flex h-10 w-10 items-center justify-center rounded-sm bg-brand-500/10 text-lg font-bold text-brand-400 tabular-nums">5</span>
               <div>
                 <h2 className="text-lg font-semibold text-white">Use your API normally</h2>
                 <p className="text-sm text-gray-400">
