@@ -1,6 +1,6 @@
 "use client"
 
-import { useSession, signIn, signOut } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import { useState } from "react"
 
 export function NavActions() {
@@ -50,11 +50,8 @@ export function NavActions() {
   }
 
   return (
-    <button
-      onClick={() => signIn()}
-      className="btn-ghost"
-    >
+    <a href="/auth/signin" className="btn-ghost">
       Sign in
-    </button>
+    </a>
   )
 }

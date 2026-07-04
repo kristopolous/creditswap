@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { signIn } from "next-auth/react"
-import { useSearchParams } from "next/navigation"
 
 export default function SignUpPage() {
   const [email, setEmail] = useState("")

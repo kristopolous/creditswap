@@ -127,6 +127,57 @@ export async function consumeFromSellOrders(platformId: string, amount: number):
   }
 }
 
+// ── User Dashboard ─────────────────────────────────────────
+
+export async function getUserBuyOrders(userId: string): Promise<(BuyOrder & { platformSlug: string; usage: { calls: number; creditsUsed: number } })[]> {
+  const orders = await query<any>(
+    `SELECT bo.id, bo.platform_id AS "platformId", p.name AS "platformName",
+            p.slug AS "platformSlug", bo.amount, bo.price_per_credit AS "pricePerCredit",
+            bo.total_price AS "totalPrice", bo.fee, bo.fee_percentage AS "feePercentage",
+            bo.type, bo.status, COALESCE(ak.key, '') AS "proxyKey",
+            bo.created_at AS "createdAt"
+     FROM buy_orders bo
+     JOIN platforms p ON p.id = bo.platform_id
+     LEFT JOIN api_keys ak ON ak.id = bo.proxy_key_id
+     WHERE bo.status IN ('completed', 'pending')
+     ORDER BY bo.created_at DESC`
+  )
+
+  const enriched = await Promise.all(
+    orders.map(async (o: any) => {
+      const usageRows = await query<{ calls: number; credits: number }>(
+        `SELECT COUNT(*)::int AS "calls", COALESCE(SUM(credits_charged), 0) AS "credits"
+         FROM usage_log WHERE buy_order_id = $1`,
+        [o.id]
+      )
+      return {
+        ...o,
+        platformSlug: o.platformSlug,
+        usage: {
+          calls: usageRows[0]?.calls ?? 0,
+          creditsUsed: Number(usageRows[0]?.credits ?? 0),
+        },
+      }
+    })
+  )
+
+  return enriched
+}
+
+export async function getUserSellOrders(userId: string): Promise<(SellOrder & { platformSlug: string })[]> {
+  await expireSellOrders()
+  return query<any>(
+    `SELECT so.id, so.platform_id AS "platformId", p.name AS "platformName",
+            p.slug AS "platformSlug", so.seller_key AS "sellerKey",
+            so.total_credits AS "totalCredits", so.available_credits AS "availableCredits",
+            so.price_per_credit AS "pricePerCredit", so.type, so.status,
+            so.expires_at AS "expiresAt", so.created_at AS "createdAt"
+     FROM sell_orders so
+     JOIN platforms p ON p.id = so.platform_id
+     ORDER BY so.created_at DESC`
+  )
+}
+
 // ── Buy Orders ─────────────────────────────────────────────
 
 export async function getBuyOrders(platformId: string): Promise<BuyOrder[]> {
