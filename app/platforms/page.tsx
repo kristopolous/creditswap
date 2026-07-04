@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getPlatforms } from "@/lib/data"
 import { Platform } from "@/lib/types"
 import { PlatformCard } from "@/components/PlatformCard"
 
@@ -9,7 +8,10 @@ export default function PlatformsPage() {
   const [platforms, setPlatforms] = useState<Platform[]>([])
 
   useEffect(() => {
-    getPlatforms().then(setPlatforms)
+    fetch("/api/platforms")
+      .then((r) => r.json())
+      .then((d) => setPlatforms(d.platforms || []))
+      .catch(() => {})
   }, [])
   const [showForm, setShowForm] = useState(false)
   const [newPlatform, setNewPlatform] = useState({ name: "", apiEndpoint: "" })

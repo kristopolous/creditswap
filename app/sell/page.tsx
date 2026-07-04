@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { getPlatforms } from "@/lib/data"
 import { Platform } from "@/lib/types"
 
 export default function SellPage() {
@@ -9,7 +8,10 @@ export default function SellPage() {
   const [allPlatforms, setAllPlatforms] = useState<Platform[]>([])
 
   useEffect(() => {
-    getPlatforms().then(setAllPlatforms)
+    fetch("/api/platforms")
+      .then((r) => r.json())
+      .then((d) => setAllPlatforms(d.platforms || []))
+      .catch(() => {})
   }, [])
 
   const platforms = allPlatforms.filter(
